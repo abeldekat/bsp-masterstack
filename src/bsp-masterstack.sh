@@ -55,8 +55,12 @@ _get_desktop_argument(){
     echo "$result";
 }
 
+_get_adapter_process() {
+    echo "$(get_desktop_options "$1" | valueof pid)";
+}
+
 _kill_adapter_process() {
-    local old_pid="$(get_desktop_options "$1" | valueof pid)";
+    local old_pid=$1;
     [[ -n $old_pid ]] && kill $old_pid;
 }
 
@@ -65,17 +69,21 @@ _kill_adapter_process() {
 # Command
 stop() {
     local desktop_name="$(_get_desktop_argument $1)";
-    _kill_adapter_process "$desktop_name";
+    local old_pid="$(_get_adapter_process $desktop_name)";
+    _kill_adapter_process $old_pid;
     remove_desktop_options $desktop_name;
+
     bash $GUARD;
 }
 
-# Activates listener maintaining a specific desktop
+# Activates listener maintaining a specific desktop.
+# If a process for the desktop is already running no action is taken.
 # Command
 start() {
     local desktop_name="$(_get_desktop_argument $1)";
-    _kill_adapter_process $desktop_name;
-
+    local old_pid="$(_get_adapter_process $desktop_name)";
+    [[ -n $old_pid ]] && return;
+    
     # Announce intention for a new listener to guard... 
     set_desktop_option $desktop_name 'pid' "";
     bash $GUARD;
