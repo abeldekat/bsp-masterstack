@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # TODO: Test the impact of flags 
-# TODO Explain in general and mention corner cases
 # Precondition: automatic_scheme alternate
 # initial_polarity first_child
 
@@ -115,24 +114,3 @@ zoom(){
     swap $STACK_TOP $MASTER || swap $STACK $MASTER;
     bspc node $MASTER -f;
 }
-
-DESKTOPNAME="$1"; shift;
-DESKTOP="@$DESKTOPNAME:";
-_master="1";
-MASTER="$DESKTOP/$_master";
-_stack="2";
-STACK="$DESKTOP/$_stack";
-NEW_NODE="1";
-# For example: @I:/1/1/
-MASTER_NEWNODE="$MASTER/$NEW_NODE";
-# For example: @I:/2/1/
-STACK_TOP="$STACK/$NEW_NODE";
-
-cmd=$1; shift;
-case "$cmd" in
-  node_add) node_add "$@" ;;
-  node_remove) node_remove ;;
-  node_transfer) node_transfer "$@" ;;
-  zoom) zoom ;;
-  *) ;;
-esac;

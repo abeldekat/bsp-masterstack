@@ -96,7 +96,9 @@ start() {
 # Command
 zoom(){
     local desktop_name="$(_get_desktop_argument $1)";
-    bash "$(get_adapter_file)" $desktop_name "zoom" 2> /dev/null || true;
+    # bash "$(get_adapter_file)" $desktop_name "zoom" 2> /dev/null || true;
+
+    echo "zoom" > "$(get_desktop_fifo $desktop_name)";
 }
 
 # Check for dependencies

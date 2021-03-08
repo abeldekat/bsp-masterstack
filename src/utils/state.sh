@@ -1,5 +1,6 @@
 STATE_DIR="/tmp/bsp-masterstack.state";
 DESKTOP_STATE="$STATE_DIR/desktops";
+DESKTOP_FIFO="$STATE_DIR/fifo";
 GUARD_FILE_NAME="GUARD";
 
 # (Data ->) :: Key -> Value -> Data
@@ -22,6 +23,7 @@ set_desktop_option() {
 remove_desktop_options(){
     [[ -f "$DESKTOP_STATE/$1" ]] && \rm "$DESKTOP_STATE/$1";
 }
+get_desktop_fifo() { echo "$DESKTOP_FIFO/$1"; }
 
 get_guard_data() { cat "$STATE_DIR/$GUARD_FILE_NAME" 2> /dev/null || true; }
 set_guard_data() {
@@ -29,3 +31,4 @@ set_guard_data() {
     echo "$new_options" > "$STATE_DIR/$GUARD_FILE_NAME";
 }
  mkdir -p "$DESKTOP_STATE";
+ mkdir -p "$DESKTOP_FIFO";
