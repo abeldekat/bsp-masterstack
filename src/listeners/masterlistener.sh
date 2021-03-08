@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 source "$ROOT/utils/state.sh";
 source "$ROOT/utils/desktop.sh";
-source "$ROOT/adapters/alternate.sh";
 
 # Gatekeeper: Only handle event if:
 # Event target desktop is a match, or event is not from bspwm
@@ -71,7 +70,10 @@ _start() {
 }
 
 # Masterstack variables
-DESKTOPNAME="$1";
+DESKTOPNAME="$1"; shift; 
+# Source adapter implementation
+source "$1"; shift;
+
 DESKTOP="@$DESKTOPNAME:";
 _master="1";
 MASTER="$DESKTOP/$_master";

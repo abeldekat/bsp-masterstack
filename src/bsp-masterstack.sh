@@ -9,6 +9,7 @@ source "$ROOT/utils/desktop.sh";
 source "$ROOT/utils/state.sh";
 
 GUARD="$ROOT/bsp-guard.sh";
+ADAPTER_IMPL="$ROOT/adapters/alternate.sh";
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
 
 # $1: The path containing the leaves to send
@@ -55,13 +56,12 @@ _get_desktop_argument(){
     echo "$result";
 }
 
-_get_adapter_process() {
-    echo "$(get_desktop_options "$1" | valueof pid)";
+_get_adapter_implementation() {
+    echo "$ADAPTER_IMPL";
 }
 
-_kill_adapter_process() {
-    local old_pid=$1;
-    [[ -n $old_pid ]] && kill $old_pid;
+_get_adapter_process() {
+    echo "$(get_desktop_options "$1" | valueof pid)";
 }
 
 # Kill old process and remove saved state
@@ -70,7 +70,7 @@ _kill_adapter_process() {
 stop() {
     local desktop_name="$(_get_desktop_argument $1)";
     local old_pid="$(_get_adapter_process $desktop_name)";
-    _kill_adapter_process $old_pid;
+    [[ -n $old_pid ]] && kill $old_pid;
     remove_desktop_options $desktop_name;
 
     bash $GUARD;
@@ -84,11 +84,13 @@ start() {
     local old_pid="$(_get_adapter_process $desktop_name)";
     [[ -n $old_pid ]] && return;
     
+    local adapter_impl="$(_get_adapter_implementation)";
+    
     # Announce intention for a new listener to guard... 
     set_desktop_option $desktop_name 'pid' "";
     bash $GUARD;
 
-    bash $MASTERLISTENER $desktop_name;
+    bash $MASTERLISTENER $desktop_name $adapter_impl;
 }
 
 # Use case: Send a node from stack to master.
