@@ -84,13 +84,11 @@ start() {
     local old_pid="$(_get_adapter_process $desktop_name)";
     [[ -n $old_pid ]] && return;
     
-    local adapter_impl="$(_get_adapter_implementation)";
-    
     # Announce intention for a new listener to guard... 
     set_desktop_option $desktop_name 'pid' "";
     bash $GUARD;
 
-    bash $MASTERLISTENER $desktop_name $adapter_impl;
+    bash $MASTERLISTENER $desktop_name "$(_get_adapter_implementation)";
 }
 
 # Use case: Send a node from stack to master.
@@ -105,7 +103,7 @@ zoom(){
 
 # Check for dependencies
 for dep in bspc man tac; do
-    !(which $dep >/dev/null 2>&1) && echo "[Missing dependency] bsp-dynamic needs $dep installed" && exit 1;
+    !(which $dep >/dev/null 2>&1) && echo "[Missing dependency] bsp-masterstack needs $dep installed" && exit 1;
 done;
 
 # Note: Parameter desktop needs to be in classic style
@@ -115,7 +113,7 @@ case "$action" in
     stop)       stop "$1" ;;
     zoom)       zoom "$1" ;;
     replay)     replay "$1" ;;
-    help)       man bspwm-dynamic ;;
+    help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;
-    *)          echo -e "Unknown subcommand. Run bspwm-dynamic help" && exit 1 ;;
+    *)          echo -e "Unknown subcommand. Run bsp-masterstack help" && exit 1 ;;
 esac
