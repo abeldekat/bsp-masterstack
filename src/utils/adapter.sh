@@ -57,3 +57,15 @@ equalize_and_balance() {
     equalize $1;
     balance $2;
 }
+
+# $1 Node to query
+# Result: All leaves in node in reversed order
+_query_all_leaves_reversed(){
+    echo "$(bspc query -N $1 -n .descendant_of.leaf | tac)";
+}
+
+# $1 desktopname
+# Result: the focussed node
+_query_focused_node(){
+    echo "$(bspc query -N -n focused -d $1)";
+}
