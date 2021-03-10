@@ -3,6 +3,11 @@ DESKTOP_STATE="$STATE_DIR/desktops";
 DESKTOP_FIFO="$STATE_DIR/fifo";
 GUARD_FILE_NAME="GUARD";
 
+DIR_WEST="west";
+DIR_NORTH="north";
+DIR_EAST="east";
+DIR_SOUTH="south";
+
 # (Data ->) :: Key -> Value -> Data
 append_option() { sed "/^$1:/d"; echo "$1:$2"; }
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-export VERSION="{{VERSION}}";
+# Design: A stateless frontend providing interaction with desktop processes listening in the background.
 
+export VERSION="{{VERSION}}";
 # export ROOT="{{SOURCE_PATH}}";
 export ROOT="$HOME/builds/bsp-masterstack/src";
 
@@ -46,7 +47,7 @@ start() {
     set_desktop_option $desktop_name 'pid' "";
     bash $GUARD;
 
-    bash $MASTERLISTENER $desktop_name;
+    bash $MASTERLISTENER $desktop_name $DIR_WEST;
 }
 
 # Use case: Send a node from stack to master.
@@ -62,12 +63,18 @@ rotate(){
     echo "rotate" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
-replay(){
+dump(){
     local desktop_name="$(_get_desktop_argument $1)";
-    local old_pid="$(_get_adapter_process $desktop_name)";
-    [[ -z $old_pid ]] && start;
+    echo "dump" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+}
 
-    echo "replay" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+replay(){
+    # local desktop_name="$(_get_desktop_argument $1)";
+    # local old_pid="$(_get_adapter_process $desktop_name)";
+    # [[ -z $old_pid ]] && start;
+
+    # echo "replay" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+    echo "Todo replay";
 }
 
 # Check for dependencies
@@ -83,6 +90,7 @@ case "$action" in
     zoom)       zoom ;;
     rotate)     rotate ;;
     replay)     replay ;;
+    dump)       dump ;;
     help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;
     *)          echo -e "Unknown subcommand. Run bsp-masterstack help" && exit 1 ;;

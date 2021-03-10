@@ -41,6 +41,6 @@ zoom(){
         _bubble_node_in_stack_to_top $node_to_zoom;
     fi;
     # echo "zoom: swap master with top of the stack and focus master";
-    swap $STACK_TOP $MASTER || swap $STACK $MASTER;
+    swap $STACK_NEWNODE $MASTER || swap $STACK $MASTER;
     bspc node $MASTER -f;
 }

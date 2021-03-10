@@ -24,7 +24,6 @@ _apply_globals(){
         bspc config $key ${globals_ref[$key]};
     done
 }
-
 # Finds out if a desktop is managed by bspwm-dynamic
 _should_be_guarded(){
     local desktop_name=$1;
@@ -37,7 +36,6 @@ _should_be_guarded(){
     done
     echo $result;
 }
-
 # Handles each desktop_focus event
 _handle_event(){
     local desktop_name=$1;

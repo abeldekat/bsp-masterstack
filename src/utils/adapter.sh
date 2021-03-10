@@ -43,6 +43,12 @@ transfer(){
     bspc node $1 -n $2;
 }
 
+# $1 path to rotate
+# $2 rotation
+rotate(){
+    bspc node $1 -R $2;
+}
+
 # All nodes in $1 will occupy the same space
 balance(){
     bspc node "$1" -B;
