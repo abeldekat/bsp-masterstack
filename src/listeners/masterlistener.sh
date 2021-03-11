@@ -7,7 +7,7 @@ source "$ROOT/adapters/runtime_globals.sh";
 source "$ROOT/adapters/dump.sh";
 source "$ROOT/adapters/on_event.sh";
 source "$ROOT/adapters/zoom.sh";
-source "$ROOT/adapters/rotate.sh";
+source "$ROOT/adapters/orientation.sh";
 source "$ROOT/adapters/replay.sh";
 
 # @see _should_handle_event
@@ -50,7 +50,7 @@ _handle_event(){
       node_remove) on_node_remove ;;
       node_transfer) on_node_transfer "$@" ;;
       zoom) zoom ;;
-      rotate) rotate_desktop ;;
+      rotate) change_orientation ;;
       replay) replay ;;
       dump) dump ;;
       *) ;;

@@ -18,14 +18,8 @@ is_node_in_master(){
     echo $result;
 }
 
-# $1 desktoppath
-_root_is_leaf(){
-    local result=false;
-    [[ -n "$(bspc query -N -n $1/.leaf)" ]] && result=true;
-    echo $result;
-}
-# $1 stackpath
-_stack_is_leaf(){
+# $1 path to test
+is_leaf(){
     local result=false;
     [[ -n "$(bspc query -N -n $1/.leaf)" ]] && result=true;
     echo $result;

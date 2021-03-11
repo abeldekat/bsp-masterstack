@@ -1,8 +1,9 @@
 STATE_DIR="/tmp/bsp-masterstack.state";
 DESKTOP_STATE="$STATE_DIR/desktops";
 DESKTOP_FIFO="$STATE_DIR/fifo";
-GUARD_FILE_NAME="GUARD";
+GUARD_FILE="$STATE_DIR/GUARD";
 
+# west resembles the default way bspwm operates on alternate with first_child
 DIR_WEST="west";
 DIR_NORTH="north";
 DIR_EAST="east";
@@ -30,10 +31,10 @@ remove_desktop_options(){
 }
 get_desktop_fifo() { echo "$DESKTOP_FIFO/$1"; }
 
-get_guard_data() { cat "$STATE_DIR/$GUARD_FILE_NAME" 2> /dev/null || true; }
+get_guard_data() { cat "$GUARD_FILE" 2> /dev/null || true; }
 set_guard_data() {
     local new_options=$(get_guard_data | append_option $1 $2);
-    echo "$new_options" > "$STATE_DIR/$GUARD_FILE_NAME";
+    echo "$new_options" > "$GUARD_FILE";
 }
  mkdir -p "$DESKTOP_STATE";
  mkdir -p "$DESKTOP_FIFO";

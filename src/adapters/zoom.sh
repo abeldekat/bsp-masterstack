@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# $1 node_to_zoom 
+# $1 node_to_bubble 
 _bubble_node_in_stack_to_top(){
     local node_to_bubble=$1;
     # echo "bubble node $node_to_bubble to top of the stack";
@@ -26,8 +26,8 @@ _bubble_node_in_stack_to_top(){
 # Use case: Zoom an item from stack into master
 # Use case: Zoom the top of the stack into master
 zoom(){
-    if "$(_root_is_leaf $DESKTOP)"; then
-        # echo "zoom: no work to be done";
+    if "$(is_leaf $DESKTOP)"; then
+        # echo "zoom: nothing todo";
         return;
     fi;
 
