@@ -7,9 +7,6 @@
 # initial_polarity
 # split_ratio
 
-# export ROOT="{{SOURCE_PATH}}";
-export ROOT="$HOME/builds/bsp-masterstack/src";
-
 source "$ROOT/utils/desktop.sh";
 source "$ROOT/utils/state.sh";
 

@@ -8,7 +8,7 @@ export ROOT="$HOME/builds/bsp-masterstack/src";
 source "$ROOT/utils/desktop.sh";
 source "$ROOT/utils/state.sh";
 
-GUARD="$ROOT/bsp-guard.sh";
+GUARD="$ROOT/standalone/bsp-guard.sh";
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
 
 # Get desktop argument or use focussed
