@@ -18,6 +18,23 @@ is_node_in_master(){
     echo $result;
 }
 
+# $1 Path to node
+# Returns nodeid if path exists
+get_node(){
+    bspc query -N -n $1;
+}
+
+# $1 The node to focus
+focus_node(){
+    bspc node -f $1;
+}
+
+# $1 The node to send
+# S2 Name of desktop
+send_node_to_desktop(){
+    bspc node $1 -d $2;
+}
+
 # $1 path to test
 is_leaf(){
     local result=false;
@@ -37,6 +54,7 @@ transfer(){
     bspc node $1 -n $2;
 }
 
+# Note: Rotate exits cleanly if applied to a leaf
 # $1 path to rotate
 # $2 rotation
 rotate(){
@@ -58,14 +76,14 @@ equalize_and_balance() {
     balance $2;
 }
 
-# $1 Node to query
-# Result: All leaves in node in reversed order
-_query_all_leaves_reversed(){
+# $1 path to query
+# Result: All leaves in path in reversed order
+query_leaves_reversed(){
     echo "$(bspc query -N $1 -n .descendant_of.leaf | tac)";
 }
 
 # $1 desktopname
-# Result: the focussed node
-_query_focused_node(){
+# Result: the focused node
+query_focused_node(){
     echo "$(bspc query -N -n focused -d $1)";
 }

@@ -5,76 +5,93 @@ export VERSION="{{VERSION}}";
 # export ROOT="{{SOURCE_PATH}}";
 export ROOT="$HOME/builds/bsp-masterstack/src";
 
-source "$ROOT/utils/desktop.sh";
-source "$ROOT/utils/state.sh";
+source "$ROOT/lib/desktop.sh";
+source "$ROOT/lib/state.sh";
 
 GUARD="$ROOT/standalone/bsp-guard.sh";
+REPLAY="$ROOT/standalone/replay.sh";
+
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
 
-# Get desktop argument or use focussed
+# Get desktop argument or return the name of the focused desktop
 _get_desktop_argument(){
     local result="$1";
     [[ "$result" == "--" ]] && result="";
     [[ -z "$result" ]] && result=$(get_focused_desktop);
     echo "$result";
 }
-
-_get_adapter_process() {
+# Returns the orientation which the listener has registered 
+_get_orientation_or_use_west(){
+    local orientation="$(get_desktop_options "$1" | valueof orientation)";
+    [[ -z $orientation ]] && orientation=$DIR_WEST;
+    echo $orientation;
+}
+# Returns the processid which the listener has registered
+_get_listener_process() {
     echo "$(get_desktop_options "$1" | valueof pid)";
 }
 
 # Kill old process and remove saved state
 # Removes desktop from GUARD. GUARD stops if there are no more desktops
-# Command
 stop() {
     local desktop_name="$(_get_desktop_argument $1)";
-    local old_pid="$(_get_adapter_process $desktop_name)";
+    local old_pid="$(_get_listener_process $desktop_name)";
     [[ -n $old_pid ]] && kill $old_pid;
-    remove_desktop_options $desktop_name;
+    set_desktop_option $desktop_name 'pid' "";
 
     bash $GUARD;
 }
 
 # Activates listener maintaining a specific desktop.
-# If a process for the desktop is already running no action is taken.
-# Command
+# Does nothing if a process for that desktop is already running
 start() {
     local desktop_name="$(_get_desktop_argument $1)";
-    local old_pid="$(_get_adapter_process $desktop_name)";
+    local old_pid="$(_get_listener_process $desktop_name)";
     [[ -n $old_pid ]] && return;
     
     # Announce intention for a new listener to guard... 
-    set_desktop_option $desktop_name 'pid' "";
+    set_desktop_option $desktop_name 'pid' "DUMMY";
     bash $GUARD;
 
-    bash $MASTERLISTENER $desktop_name $DIR_WEST;
+    local orientation="$(_get_orientation_or_use_west $desktop_name)";
+    # echo "Start listener for [$desktop_name] using [$orientation]";
+    bash $MASTERLISTENER $desktop_name $orientation;
+}
+
+# Use case: Correct or transform an existing desktop
+# Only operates if desktop has an active listener
+replay(){
+    local desktop_name="$(get_focused_desktop)";
+    if [[ -z "$(_get_listener_process $desktop_name)" ]]; then
+        echo "Replay: No listener is active on desktop $desktop_name";
+        return;
+    fi
+
+    local orientation="$(_get_orientation_or_use_west $desktop_name)";
+
+    # echo "Start replay on desktop [$desktop_name]";
+    # echo "Orientation is [$orientation]";
+    bash $REPLAY $desktop_name $orientation;
 }
 
 # Use case: Send a node from stack to master.
 # Use case: Swap master with top of the stack.
-# Command
 zoom(){
     local desktop_name="$(get_focused_desktop)";
     echo "zoom" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
+# Use case: User requires a different orientation.
+# West is default. Other orientations are north, east and south
 rotate(){
     local desktop_name="$(get_focused_desktop)";
     echo "rotate" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
+# Use case: Inspect runtime state
 dump(){
     local desktop_name="$(get_focused_desktop)";
     echo "dump" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
-}
-
-replay(){
-    # local desktop_name="$(get_focused_desktop)";
-    # local old_pid="$(_get_adapter_process $desktop_name)";
-    # [[ -z $old_pid ]] && start;
-
-    # echo "replay" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
-    echo "Todo replay";
 }
 
 # Check for dependencies

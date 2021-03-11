@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 
-source "$ROOT/utils/state.sh";
-source "$ROOT/utils/desktop.sh";
-source "$ROOT/utils/adapter.sh";
+source "$ROOT/lib/state.sh";
+source "$ROOT/lib/desktop.sh";
+source "$ROOT/lib/bspc.sh";
 source "$ROOT/handlers/runtime_globals.sh";
 source "$ROOT/handlers/dump.sh";
 source "$ROOT/handlers/on_event.sh";
 source "$ROOT/handlers/zoom.sh";
 source "$ROOT/handlers/orientation.sh";
-source "$ROOT/handlers/replay.sh";
 
 # @see _should_handle_event
 _find_desktop_id_in_event(){
@@ -27,8 +26,7 @@ _find_desktop_id_in_event(){
 # In case event is node_transfer: Event src desktop is not a match
 _should_handle_event(){
     local cmd=$1;
-    if [[ $cmd == "zoom" || $cmd == "rotate" || \
-        $cmd == "replay" || $cmd == "dump" ]]; then
+    if [[ $cmd == "zoom" || $cmd == "rotate" || $cmd == "dump" ]]; then
         echo true;
         return;
     fi
@@ -51,7 +49,6 @@ _handle_event(){
       node_transfer) on_node_transfer "$@" ;;
       zoom) zoom ;;
       rotate) change_orientation ;;
-      replay) replay ;;
       dump) dump ;;
       *) ;;
     esac;
@@ -85,6 +82,7 @@ _start() {
     local ADAPTER_PID=$!;
     disown;
     set_desktop_option $DESKTOPNAME 'pid' "$ADAPTER_PID";
+    set_desktop_option $DESKTOPNAME 'orientation' "$ORIENTATION";
     echo "[$ADAPTER_PID]";
 }
 

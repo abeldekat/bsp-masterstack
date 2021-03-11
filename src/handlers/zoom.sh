@@ -5,8 +5,8 @@ _bubble_node_in_stack_to_top(){
     local node_to_bubble=$1;
     # echo "bubble node $node_to_bubble to top of the stack";
 
-    local stack_leaves=($(_query_all_leaves_reversed $STACK));
-    # echo "_bubble: leafs [${stack_leaves[*]}]"
+    local stack_leaves=($(query_leaves_reversed $STACK));
+    # echo "_bubble: leaves [${stack_leaves[*]}]"
 
     local start_swap=false;
     local index_last=$(( ${#stack_leaves[@]} - 1 ));
@@ -31,7 +31,7 @@ zoom(){
         return;
     fi;
 
-    node_to_zoom="$(_query_focused_node $DESKTOPNAME)"; 
+    node_to_zoom="$(query_focused_node $DESKTOPNAME)"; 
     if [[ -z $node_to_zoom ]]; then
         # echo "zoom: no focused node to select";
         return;

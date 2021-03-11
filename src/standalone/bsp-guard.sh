@@ -7,23 +7,33 @@
 # initial_polarity
 # split_ratio
 
-source "$ROOT/utils/desktop.sh";
-source "$ROOT/utils/state.sh";
+source "$ROOT/lib/desktop.sh";
+source "$ROOT/lib/state.sh";
 
 GUARDLISTENER="$ROOT/listeners/guardlistener.sh";
 
 # The kill command invokes a trap on the process reverting 
 # the globals back to their initial values
 _remove_listener_and_revert_globals() {
-      local old_pid="$(get_guard_data | valueof pid)";
-      [[ -n $old_pid ]] && kill $old_pid; 
-      set_guard_data 'pid' "";
+    local old_pid="$(get_guard_data | valueof pid)";
+    [[ -n $old_pid ]] && kill $old_pid; 
+    set_guard_data 'pid' "";
 }
+# finds all desktops whose pid is not empty
+_get_desktops_to_guard(){
+    local result=();
+    while read -r desktop; do
+        pid=$(get_desktop_options "$desktop" | valueof pid);
+        [[ -n "$pid" ]] && result+=($desktop);
+    done < <(list_desktops)
+    echo "${result[@]}";
+}
+
 _start(){
-    local desktops_to_guard=($(list_desktops));
+    local desktops_to_guard=($(_get_desktops_to_guard));
 
     if [[ ${#desktops_to_guard[@]} -gt 0 ]]; then
-        # echo "Starting listener for desktops[${desktops_to_guard[@]}]";
+        # echo "Starting guardlistener for desktops[${desktops_to_guard[@]}]";
         bash $GUARDLISTENER ${desktops_to_guard[@]};
     fi;
 }

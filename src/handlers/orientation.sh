@@ -10,7 +10,10 @@ change_orientation(){
     # echo "changing [$ORIENTATION] into [$new_orientation]"; 
     rotate "$DESKTOP/" 90;
 
+    # echo "Setting runtime globals for $new_orientation"; 
     set_runtime_globals $new_orientation;
+    set_desktop_option $DESKTOPNAME 'orientation' "$ORIENTATION";
+
     if [[ $old_stack_position == $STACK_POSITION ]]; then
         # echo "Correcting stack order [$STACK]";
         rotate $STACK 180;

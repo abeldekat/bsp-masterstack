@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-source "$ROOT/utils/desktop.sh";
-source "$ROOT/utils/state.sh";
+source "$ROOT/lib/desktop.sh";
+source "$ROOT/lib/state.sh";
 
 # Gathers the values to work with
 _fill_dicts(){
@@ -70,7 +70,7 @@ _fill_dicts;
 # echo "Start listener: desktops[${desktops_to_guard[@]}] backup[${backup_dict[@]}] required[${required_dict[@]}]";
 
 # Change globals if activated from focused desktop.
-if $(_should_be_guarded $(bspc query --desktops -d --names)); then 
+if $(_should_be_guarded $(get_focused_desktop)); then 
     _apply_globals required_dict; 
 fi;
 _start;

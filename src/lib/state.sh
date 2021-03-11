@@ -25,10 +25,6 @@ set_desktop_option() {
     local new_options=$(get_desktop_options "$1" | append_option $2 $3);
     echo "$new_options" > "$DESKTOP_STATE/$1";
 }
-# :: DesktopName
-remove_desktop_options(){
-    [[ -f "$DESKTOP_STATE/$1" ]] && \rm "$DESKTOP_STATE/$1";
-}
 get_desktop_fifo() { echo "$DESKTOP_FIFO/$1"; }
 
 get_guard_data() { cat "$GUARD_FILE" 2> /dev/null || true; }

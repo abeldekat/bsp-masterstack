@@ -12,13 +12,13 @@ on_node_add(){
         # echo "on_node_add no action required";
         return;
     fi;
-    # User added a leaf to a desktop containing only one leaf: Two leafs
+    # User added a leaf to a desktop containing only one leaf: Two leaves
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
         restore_orientation_if_needed;
         return;
     fi;
 
-    # Generic algorithm for three or more leafs
+    # Generic algorithm for three or more leaves
     local nodeid=$4;
     if "$(is_node_in_stack $nodeid $MASTER)"; then
         # echo "Add: Moving to master";
@@ -33,12 +33,12 @@ on_node_add(){
 # Use case: Node is deleted from stack
 # Note: At the moment no reliable way to distinguish between the two use cases
 # Recreates stack by moving all nodes against the top in reversed order
-# Not necessary if there are only two leafs
+# Not necessary if there are only two leaves
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_remove(){
     # TODO Needs improvement
-    local stack_leaves=($(_query_all_leaves_reversed $STACK));
-    # echo "node_remove: leafs [${stack_leaves[*]}]"
+    local stack_leaves=($(query_leaves_reversed $STACK));
+    # echo "node_remove: leaves [${stack_leaves[*]}]"
     if [[ ${#stack_leaves[@]} -ge 3 ]]; then
         for leaf in ${stack_leaves[@]}; do
             transfer $leaf $STACK;
