@@ -54,22 +54,22 @@ start() {
 # Use case: Swap master with top of the stack.
 # Command
 zoom(){
-    local desktop_name="$(_get_desktop_argument $1)";
+    local desktop_name="$(get_focused_desktop)";
     echo "zoom" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
 rotate(){
-    local desktop_name="$(_get_desktop_argument $1)";
+    local desktop_name="$(get_focused_desktop)";
     echo "rotate" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
 dump(){
-    local desktop_name="$(_get_desktop_argument $1)";
+    local desktop_name="$(get_focused_desktop)";
     echo "dump" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
 }
 
 replay(){
-    # local desktop_name="$(_get_desktop_argument $1)";
+    # local desktop_name="$(get_focused_desktop)";
     # local old_pid="$(_get_adapter_process $desktop_name)";
     # [[ -z $old_pid ]] && start;
 
@@ -85,7 +85,7 @@ done;
 # Note: Parameter desktop needs to be in classic style
 action=$1; shift;
 case "$action" in
-    start)      start "$@" ;;
+    start)      start "$1" ;;
     stop)       stop "$1" ;;
     zoom)       zoom ;;
     rotate)     rotate ;;

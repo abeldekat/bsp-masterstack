@@ -3,12 +3,12 @@
 source "$ROOT/utils/state.sh";
 source "$ROOT/utils/desktop.sh";
 source "$ROOT/utils/adapter.sh";
-source "$ROOT/adapters/runtime_globals.sh";
-source "$ROOT/adapters/dump.sh";
-source "$ROOT/adapters/on_event.sh";
-source "$ROOT/adapters/zoom.sh";
-source "$ROOT/adapters/orientation.sh";
-source "$ROOT/adapters/replay.sh";
+source "$ROOT/handlers/runtime_globals.sh";
+source "$ROOT/handlers/dump.sh";
+source "$ROOT/handlers/on_event.sh";
+source "$ROOT/handlers/zoom.sh";
+source "$ROOT/handlers/orientation.sh";
+source "$ROOT/handlers/replay.sh";
 
 # @see _should_handle_event
 _find_desktop_id_in_event(){
