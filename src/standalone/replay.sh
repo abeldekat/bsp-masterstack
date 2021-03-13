@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Note: Replay is not in use anymore...
+#
 # Given a desktop with nodes, simulate user action by resending each node from 
 # a temporary desktop.
 # This will trigger the algorithm running in the listener process
@@ -40,7 +42,7 @@ _replay(){
     bspc monitor -a $desktop_tmp;
 
     # Capture master to regain focus
-    local masterid="$(get_node $MASTER)";
+    local masterid="$(query_node $MASTER)";
 
     # Move root to a temp desktop
     send_node_to_desktop "$DESKTOP/" $desktop_tmp;

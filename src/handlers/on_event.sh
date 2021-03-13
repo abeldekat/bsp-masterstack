@@ -46,7 +46,7 @@ on_node_remove(){
         transfer $STACK_NEWNODE $MASTER;
         focus_node $MASTER;
     fi
-    save_master_node "$(get_node $MASTER)"; 
+    save_master_node "$(query_node $MASTER)"; 
     balance $STACK;
 }
 

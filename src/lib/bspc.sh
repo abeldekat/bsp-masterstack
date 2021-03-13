@@ -20,7 +20,7 @@ is_node_in_master(){
 
 # $1 Path to node
 # Returns nodeid if path exists
-get_node(){
+query_node(){
     bspc query -N -n $1;
 }
 

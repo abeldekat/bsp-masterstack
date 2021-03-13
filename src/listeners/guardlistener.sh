@@ -70,10 +70,10 @@ _start(){
 declare -A backup_dict required_dict;
 desktops_to_guard=($@);
 _fill_dicts;
-# echo "Start listener: desktops[${desktops_to_guard[@]}] backup[${backup_dict[@]}] required[${required_dict[@]}]";
 
 # Change globals if activated from focused desktop.
 if $(_should_be_guarded $(get_focused_desktop)); then 
     _apply_globals required_dict; 
 fi;
+# Start guarding
 _start;
