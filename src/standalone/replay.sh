@@ -29,6 +29,9 @@ _replay(){
     # Capture master to regain focus
     local masterid="$(get_node $MASTER)";
 
+    # Prevent laptop from refusing to shutdown...
+    bspc config removal_adjustment true;
+
     # Move root to a temp desktop
     send_node_to_desktop "$DESKTOP/" $desktop_tmp;
 
@@ -40,6 +43,9 @@ _replay(){
     bspc desktop $desktop_tmp -r;
     # echo "Regain focus";
     focus_node $masterid;
+
+    # Prevent laptop from refusing to shutdown...
+    bspc config removal_adjustment false;
 }
 
 # Replay global variables
