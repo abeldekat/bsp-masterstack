@@ -11,3 +11,12 @@ desktop_is_empty(){
     [[ -n $desktopid ]] && result=true;
     echo $result;
 }
+# Empty desktop or root is a leaf
+# $1 The name of the desktop
+has_no_master(){
+    local result=false;
+    if "$(desktop_is_empty $1)" || "$(is_leaf "@$1:/")"; then
+        result=true;
+    fi
+    echo $result;
+}

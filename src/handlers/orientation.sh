@@ -34,3 +34,8 @@ restore_orientation_if_needed(){
     # echo "Restoring orientation for [$ORIENTATION]";
     rotate "$DESKTOP/" $rotation;
 }
+
+find_stack_orientation(){
+    local next_orientation=${_orientations["$ORIENTATION"]};
+    echo ${_orientations["$next_orientation"]};
+}

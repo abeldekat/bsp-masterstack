@@ -9,7 +9,7 @@ source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/state.sh";
 
 GUARD="$ROOT/standalone/bsp-guard.sh";
-REPLAY="$ROOT/standalone/replay.sh";
+# REPLAY="$ROOT/standalone/replay.sh";
 
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
 
@@ -29,6 +29,12 @@ _get_orientation_or_use_west(){
 # Returns the processid which the listener has registered
 _get_listener_process() {
     echo "$(get_desktop_options "$1" | valueof pid)";
+}
+# Returns the fifo for the focused desktop
+# Returns nothing if there is no process
+_get_fifo_for_focused_desktop() {
+    local desktop_name="$(get_focused_desktop)";
+    echo "$(get_desktop_fifo $desktop_name)";
 }
 
 # Kill old process and remove saved state
@@ -58,40 +64,43 @@ start() {
     bash $MASTERLISTENER $desktop_name $orientation;
 }
 
+# Note: This operation is elligeble for removal
+# Now, on start the listener always transforms existing occupied desktops if needed.
+#
 # Use case: Correct or transform an existing desktop
 # Only operates if desktop has an active listener
-replay(){
-    local desktop_name="$(get_focused_desktop)";
-    if [[ -z "$(_get_listener_process $desktop_name)" ]]; then
-        echo "Replay: No listener is active on desktop $desktop_name";
-        return;
-    fi
+# replay(){
+#     local desktop_name="$(get_focused_desktop)";
+#     if [[ -z "$(_get_listener_process $desktop_name)" ]]; then
+#         echo "Replay: No listener is active on desktop $desktop_name";
+#         return;
+#     fi
 
-    local orientation="$(_get_orientation_or_use_west $desktop_name)";
+#     local orientation="$(_get_orientation_or_use_west $desktop_name)";
 
-    # echo "Start replay on desktop [$desktop_name]";
-    # echo "Orientation is [$orientation]";
-    bash $REPLAY $desktop_name $orientation;
-}
+#     # echo "Start replay on desktop [$desktop_name]";
+#     # echo "Orientation is [$orientation]";
+#     bash $REPLAY $desktop_name $orientation;
+# }
 
 # Use case: Send a node from stack to master.
 # Use case: Swap master with top of the stack.
 zoom(){
-    local desktop_name="$(get_focused_desktop)";
-    echo "zoom" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "zoom" > "$dfifo";
 }
 
 # Use case: User requires a different orientation.
 # West is default. Other orientations are north, east and south
 rotate(){
-    local desktop_name="$(get_focused_desktop)";
-    echo "rotate" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "rotate" > "$dfifo";
 }
 
 # Use case: Inspect runtime state
 dump(){
-    local desktop_name="$(get_focused_desktop)";
-    echo "dump" > "$(get_desktop_fifo $desktop_name)" 2> /dev/null || true;
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "dump" > "$dfifo";
 }
 
 # Check for dependencies
@@ -106,7 +115,7 @@ case "$action" in
     stop)       stop "$1" ;;
     zoom)       zoom ;;
     rotate)     rotate ;;
-    replay)     replay ;;
+    # replay)     replay ;;
     dump)       dump ;;
     help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;

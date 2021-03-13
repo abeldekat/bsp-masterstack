@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# Empty desktop or root is a leaf
-_has_no_master(){
-    local result=false;
-    if "$(desktop_is_empty $DESKTOPNAME)" || "$(is_leaf "$DESKTOP/")"; then
-        result=true;
-    fi
-    echo $result;
-}
-
 # Use case: New nodes are spawned from master
 # ---- This use case will be most used
 # Use case: New nodes are spawned from stack
@@ -41,7 +32,7 @@ on_node_add(){
 # node_add <monitor_id> <desktop_id> <node_id>
 on_node_remove(){
     local removed_id=$3;
-    if "$(_has_no_master)"; then
+    if "$(has_no_master $DESKTOPNAME)"; then
         save_master_node "";
         return;
     fi

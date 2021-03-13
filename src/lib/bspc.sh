@@ -69,7 +69,7 @@ balance(){
 # $1 path to query
 # Result: All leaves in path in reversed order
 query_leaves_reversed(){
-    echo "$(bspc query -N $1 -n .descendant_of.leaf | tac)";
+    echo "$(bspc query -N $1 -n .descendant_of.leaf.window | tac)";
 }
 
 # $1 desktopname
@@ -82,6 +82,5 @@ query_focused_node(){
 # $2 orientation
 # $3 presel_ratio
 receptacle(){
-    echo "Creating receptacle";
     bspc node "$1/" -p $2 -o $3 -i;
 }

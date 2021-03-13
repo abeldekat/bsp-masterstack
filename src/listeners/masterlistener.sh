@@ -5,11 +5,12 @@ source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/bspc.sh";
 source "$ROOT/handlers/config.sh";
 source "$ROOT/handlers/runtime_globals.sh";
+source "$ROOT/handlers/transform.sh";
+source "$ROOT/handlers/orientation.sh";
 source "$ROOT/handlers/master.sh";
 source "$ROOT/handlers/dump.sh";
-source "$ROOT/handlers/on_event.sh";
 source "$ROOT/handlers/zoom.sh";
-source "$ROOT/handlers/orientation.sh";
+source "$ROOT/handlers/on_event.sh";
 
 # @see _should_handle_event
 _find_desktop_id_in_event(){
@@ -91,12 +92,12 @@ _start() {
 # Masterstack global variables
 DESKTOPNAME="$1"; shift; 
 set_runtime_globals "$1"; shift;
-
-# Create FIFO for this desktop
+# Create FIFO for this desktop in order to receive commands
 THIS_DESKTOP_FIFO="$(get_desktop_fifo $DESKTOPNAME)";
 if [[ ! -p $THIS_DESKTOP_FIFO ]]; then
     mkfifo $THIS_DESKTOP_FIFO;
 fi
-
+# Transform an existing layout if needed
+transform_if_needed;
 # Start the listener
 _start;
