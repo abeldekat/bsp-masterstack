@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
 
-# TODO: Test the impact of flags 
+# Empty desktop or root is a leaf
+_has_no_master(){
+    local result=false;
+    if "$(desktop_is_empty $DESKTOPNAME)" || "$(is_leaf "$DESKTOP/")"; then
+        result=true;
+    fi
+    echo $result;
+}
 
 # Use case: New nodes are spawned from master
 # ---- This use case will be most used
 # Use case: New nodes are spawned from stack
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_add(){
+    local nodeid=$4;
+    # The new node will always become the master
+    save_master_node $nodeid; 
+
     # User added a leaf to an empty desktop: One leaf
-    if "$(is_leaf $DESKTOP)"; then
-        # echo "on_node_add no action required";
-        return;
-    fi;
+    "$(is_leaf $DESKTOP)" && return;
+
     # User added a leaf to a desktop containing only one leaf: Two leaves
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
         restore_orientation_if_needed;
@@ -19,7 +28,6 @@ on_node_add(){
     fi;
 
     # Generic algorithm for three or more leaves
-    local nodeid=$4;
     if "$(is_node_in_stack $nodeid $MASTER)"; then
         # echo "Add: Moving to master";
         transfer $nodeid $MASTER;
@@ -29,23 +37,26 @@ on_node_add(){
     balance $STACK;
 }
 
-# Use case: Node is deleted from master
-# Use case: Node is deleted from stack
-# Note: At the moment no reliable way to distinguish between the two use cases
-# Recreates stack by moving all nodes against the top in reversed order
-# Not necessary if there are only two leaves
-# node_add <monitor_id> <desktop_id> <ip_id> <node_id>
+# Use case: Node is deleted
+# node_add <monitor_id> <desktop_id> <node_id>
 on_node_remove(){
-    # TODO Needs improvement
-    local stack_leaves=($(query_leaves_reversed $STACK));
-    # echo "node_remove: leaves [${stack_leaves[*]}]"
-    if [[ ${#stack_leaves[@]} -ge 3 ]]; then
-        for leaf in ${stack_leaves[@]}; do
-            transfer $leaf $STACK;
-        done
-    fi;
-    # TODO Bug in bspwm? : Equalize should not be necessary
-    equalize_and_balance "$DESKTOP/" $STACK;
+    local removed_id=$3;
+    if "$(_has_no_master)"; then
+        save_master_node "";
+        return;
+    fi
+
+    # Root is not a leaf and master was deleted
+    # There were at least three nodes
+    if "$(is_master_node $removed_id)"; then
+        # Create a new master area
+        receptacle $DESKTOP $ORIENTATION $PRESEL_RATIO;
+        # Move top of the stack to this new area
+        transfer $STACK_NEWNODE $MASTER;
+        focus_node $MASTER;
+    fi
+    save_master_node "$(get_node $MASTER)"; 
+    balance $STACK;
 }
 
 # Use case: This desktop receives a node from another desktop

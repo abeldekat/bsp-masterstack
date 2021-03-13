@@ -3,7 +3,9 @@
 source "$ROOT/lib/state.sh";
 source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/bspc.sh";
+source "$ROOT/handlers/config.sh";
 source "$ROOT/handlers/runtime_globals.sh";
+source "$ROOT/handlers/master.sh";
 source "$ROOT/handlers/dump.sh";
 source "$ROOT/handlers/on_event.sh";
 source "$ROOT/handlers/zoom.sh";
@@ -45,7 +47,7 @@ _handle_event(){
     cmd=$1; shift;
     case "$cmd" in
       node_add) on_node_add "$@" ;;
-      node_remove) on_node_remove ;;
+      node_remove) on_node_remove "$@" ;;
       node_transfer) on_node_transfer "$@" ;;
       zoom) zoom ;;
       rotate) change_orientation ;;

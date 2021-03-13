@@ -1,19 +1,25 @@
 #!/usr/bin/env bash
 
-# Use case: Consistenly set global values for desktops managed by bspwm-dynamic
+# Use case: Consistenly set global values for desktops managed by bsp-masterstack
 # The code will set the following globals on each new desktop focus to either 
-# initial values or to the values required by bspwm-dynamic:
+# initial values or to the values required by bsp-masterstack:
 # automatic_scheme
 # initial_polarity
+# removal_adjustment
 # split_ratio
+#
+# The initial values are gathered when the guardlistener is started.
+# When the user has not changed his global settings the initial values
+# will be the same as configured in bspwmrc
+
 
 source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/state.sh";
 
 GUARDLISTENER="$ROOT/listeners/guardlistener.sh";
 
-# The kill command invokes a trap on the process reverting 
-# the globals back to their initial values
+# The kill command invokes a trap on the process of the guardlistener
+# reverting the globals back to their initial values
 _remove_listener_and_revert_globals() {
     local old_pid="$(get_guard_data | valueof pid)";
     [[ -n $old_pid ]] && kill $old_pid; 

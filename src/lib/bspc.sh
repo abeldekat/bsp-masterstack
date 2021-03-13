@@ -66,16 +66,6 @@ balance(){
     bspc node "$1" -B;
 }
 
-# All nodes in $1 will restore based on split_ratio
-equalize(){
-    bspc node "$1" -E
-}
-
-equalize_and_balance() {
-    equalize $1;
-    balance $2;
-}
-
 # $1 path to query
 # Result: All leaves in path in reversed order
 query_leaves_reversed(){
@@ -86,4 +76,12 @@ query_leaves_reversed(){
 # Result: the focused node
 query_focused_node(){
     echo "$(bspc query -N -n focused -d $1)";
+}
+
+# $1 desktoppath
+# $2 orientation
+# $3 presel_ratio
+receptacle(){
+    echo "Creating receptacle";
+    bspc node "$1/" -p $2 -o $3 -i;
 }

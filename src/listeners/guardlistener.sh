@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+source "$ROOT/handlers/config.sh";
 source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/state.sh";
 
@@ -7,14 +8,16 @@ source "$ROOT/lib/state.sh";
 _fill_dicts(){
     _fill_globals backup_dict "$(bspc config automatic_scheme)" \
         "$(bspc config initial_polarity)" \
+        "$(bspc config removal_adjustment)" \
         "$(bspc config split_ratio)";
-    _fill_globals required_dict "alternate" "first_child" "0.6";
+    _fill_globals required_dict "alternate" "first_child" "false" "$SPLIT_RATIO";
 }
 _fill_globals(){
     local -n globals_ref=$1;
     globals_ref+=(["automatic_scheme"]="$2");
     globals_ref+=(["initial_polarity"]="$3");
-    globals_ref+=(["split_ratio"]="$4");
+    globals_ref+=(["removal_adjustment"]="$4");
+    globals_ref+=(["split_ratio"]="$5");
 }
 # Applies the values with bspc config
 _apply_globals(){

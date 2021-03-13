@@ -95,7 +95,7 @@ dump(){
 }
 
 # Check for dependencies
-for dep in bspc man tac; do
+for dep in bspc man tac bc; do
     !(which $dep >/dev/null 2>&1) && echo "[Missing dependency] bsp-masterstack needs $dep installed" && exit 1;
 done;
 
