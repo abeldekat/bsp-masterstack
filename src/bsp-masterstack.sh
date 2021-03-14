@@ -8,7 +8,6 @@ export ROOT="$HOME/builds/bsp-masterstack/src";
 source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/state.sh"; 
 GUARD="$ROOT/standalone/bsp-guard.sh";
-# REPLAY="$ROOT/standalone/replay.sh";
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
 DUMMY_PID_FOR_GUARD="DUMMY";
 
@@ -82,7 +81,7 @@ stop() {
 }
 
 # Activates listener maintaining a specific desktop.
-# Does nothing if a process for that desktop is already running
+# No action if a process for that desktop is already running
 # Explicitly takes into account global settings to an unfocused desktop
 start() {
     local focused_name="$(get_focused_desktop)";
@@ -106,25 +105,6 @@ start() {
     # Flush dummy guard if applicable
     $guard_dummy && stop $focused_name;
 }
-
-# Note: This operation is elligeble for removal
-# Now, on start the listener always transforms existing occupied desktops if needed.
-#
-# Use case: Correct or transform an existing desktop
-# Only operates if desktop has an active listener
-# replay(){
-#     local desktop_name="$(get_focused_desktop)";
-#     if [[ -z "$(_get_listener_process $desktop_name)" ]]; then
-#         echo "Replay: No listener is active on desktop $desktop_name";
-#         return;
-#     fi
-
-#     local orientation="$(_get_orientation_or_use_west $desktop_name)";
-
-#     # echo "Start replay on desktop [$desktop_name]";
-#     # echo "Orientation is [$orientation]";
-#     bash $REPLAY $desktop_name $orientation;
-# }
 
 # Use case: Send a node from stack to master.
 # Use case: Swap master with top of the stack.
@@ -158,7 +138,6 @@ case "$action" in
     stop)       stop "$1" ;;
     zoom)       zoom ;;
     rotate)     rotate ;;
-    # replay)     replay ;;
     dump)       dump ;;
     help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;
