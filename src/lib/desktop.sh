@@ -40,3 +40,11 @@ _desktop_is_empty(){
     [[ -n $desktopid ]] && result=true;
     echo $result;
 }
+
+# Sending multiple leaves inside an unfocused desktop:
+# The computer refuses to shut down later on.....
+# Is related to setting removal_adjustment
+# $1 true or false
+set_removal_adjustment(){
+    bspc config removal_adjustment $1;
+}

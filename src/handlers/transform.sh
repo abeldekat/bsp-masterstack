@@ -27,9 +27,11 @@ transform_if_needed(){
     receptacle $DESKTOP "$(find_stack_orientation)" $PRESEL_RATIO;
 
     # Send all leaves the new stack
+    set_removal_adjustment true;
     for leaf in "${leaves[@]}"; do
         transfer $leaf $STACK;
     done
+    set_removal_adjustment false;
     balance $STACK;
     save_master_node $new_master_id;
     $(desktop_has_focus $DESKTOPNAME) && focus_node $new_master_id;
