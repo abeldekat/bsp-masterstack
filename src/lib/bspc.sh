@@ -35,13 +35,6 @@ send_node_to_desktop(){
     bspc node $1 -d $2;
 }
 
-# $1 path to test
-is_leaf(){
-    local result=false;
-    [[ -n "$(bspc query -N -n $1/.leaf)" ]] && result=true;
-    echo $result;
-}
-
 # $1 The source node
 # $2 The target node
 swap(){

@@ -6,18 +6,25 @@ export VERSION="{{VERSION}}";
 export ROOT="$HOME/builds/bsp-masterstack/src";
 
 source "$ROOT/lib/desktop.sh";
-source "$ROOT/lib/state.sh";
-
+source "$ROOT/lib/state.sh"; 
 GUARD="$ROOT/standalone/bsp-guard.sh";
 # REPLAY="$ROOT/standalone/replay.sh";
-
 MASTERLISTENER="$ROOT/listeners/masterlistener.sh";
+DUMMY_PID_FOR_GUARD="DUMMY";
 
+# $1 The optional desktop argument
 # Get desktop argument or return the name of the focused desktop
 _get_desktop_argument(){
     local result="$1";
-    [[ "$result" == "--" ]] && result="";
     [[ -z "$result" ]] && result=$(get_focused_desktop);
+    echo "$result";
+}
+# $1 The focused desktop
+# $2 The optional desktop argument supplied by user
+# This function can be used if the focused desktop is already retrieved
+_return_focused_desktop_or_argument(){
+    local result="$1";
+    [[ -n "$2" ]] && result="$2";
     echo "$result";
 }
 # Returns the orientation which the listener has registered 
@@ -36,32 +43,68 @@ _get_fifo_for_focused_desktop() {
     local desktop_name="$(get_focused_desktop)";
     echo "$(get_desktop_fifo $desktop_name)";
 }
+# $1 The focused desktop
+# $2 The target desktop
+# Echo true if 
+# 1. focused desktop is not equal to target desktop
+# 2. and focused desktop has no proces running
+_is_invoked_from_unguarded_desktop(){
+    local result=false;
+    if [[ $1 != $2 ]]; then
+        [[ -z "$(_get_listener_process $1)" ]] && result=true;
+    fi
+    echo $result;
+}
+# $1 The focused desktop
+# $2 The target desktop
+# Is this script invoked from another desktop which is unguarded?
+# Does the target desktop contain at least two leaves?
+_should_also_be_guarded(){
+    local focused_name=$1;
+    local desktop_name=$2;
+    local result=false;
+    $(has_master $desktop_name) && \
+        "$(_is_invoked_from_unguarded_desktop $focused_name $desktop_name)" && \
+        result=true;
+    echo $result;
+}
 
-# Kill old process and remove saved state
-# Removes desktop from GUARD. GUARD stops if there are no more desktops
+# Kill old process
+# Removes desktop from GUARD. 
+# GUARD stops if there are no more desktops to guard
 stop() {
     local desktop_name="$(_get_desktop_argument $1)";
     local old_pid="$(_get_listener_process $desktop_name)";
-    [[ -n $old_pid ]] && kill $old_pid;
-    set_desktop_option $desktop_name 'pid' "";
+    [[ -n $old_pid && ($DUMMY_PID_FOR_GUARD != $old_pid)]] && kill $old_pid;
 
+    set_desktop_option $desktop_name 'pid' "";
     bash $GUARD;
 }
 
 # Activates listener maintaining a specific desktop.
 # Does nothing if a process for that desktop is already running
+# Explicitly takes into account global settings to an unfocused desktop
 start() {
-    local desktop_name="$(_get_desktop_argument $1)";
+    local focused_name="$(get_focused_desktop)";
+    local desktop_name="$(_return_focused_desktop_or_argument $focused_name $1)";
     local old_pid="$(_get_listener_process $desktop_name)";
-    [[ -n $old_pid ]] && return;
-    
+    [[ -n $old_pid ]] && echo "Already running [$old_pid]" && return;
+
+    # Does desktop $focused_name also needs guarding?
+    local guard_dummy="$(_should_also_be_guarded $focused_name $desktop_name)";
+
     # Announce intention for a new listener to guard... 
-    set_desktop_option $desktop_name 'pid' "DUMMY";
+    set_desktop_option $desktop_name 'pid' "$DUMMY_PID_FOR_GUARD";
+    $guard_dummy && set_desktop_option $focused_name 'pid' "$DUMMY_PID_FOR_GUARD";
     bash $GUARD;
 
+    # Start listener
     local orientation="$(_get_orientation_or_use_west $desktop_name)";
     # echo "Start listener for [$desktop_name] using [$orientation]";
     bash $MASTERLISTENER $desktop_name $orientation;
+
+    # Flush dummy guard if applicable
+    $guard_dummy && stop $focused_name;
 }
 
 # Note: This operation is elligeble for removal

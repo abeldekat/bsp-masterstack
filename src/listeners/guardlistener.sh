@@ -63,7 +63,7 @@ _start(){
     GUARD_PID=$!;
     disown;
     set_guard_data 'pid' "$GUARD_PID";
-    echo "[$GUARD_PID]";
+    echo "GUARD: [$GUARD_PID]";
 }
 
 # Dictionaries keeping values for the global settings of interest

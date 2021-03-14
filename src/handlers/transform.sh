@@ -32,5 +32,5 @@ transform_if_needed(){
     done
     balance $STACK;
     save_master_node $new_master_id;
-    focus_node $new_master_id;
+    $(desktop_has_focus $DESKTOPNAME) && focus_node $new_master_id;
 }
