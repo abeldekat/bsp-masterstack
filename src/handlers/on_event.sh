@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Use case: New nodes are spawned from master
-# ---- This use case will be most used
-# Use case: New nodes are spawned from stack
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_add(){
     local nodeid=$4;
@@ -28,7 +25,6 @@ on_node_add(){
     balance $STACK;
 }
 
-# Use case: Node is deleted
 # node_add <monitor_id> <desktop_id> <node_id>
 on_node_remove(){
     local removed_id=$3;
@@ -50,9 +46,7 @@ on_node_remove(){
     balance $STACK;
 }
 
-# Use case: This desktop receives a node from another desktop
 # Delegates to node_add
-# -> Used indirectly by replay
 # node_transfer <src_monitor_id> <src_desktop_id> <src_node_id> <dst_monitor_id> <dst_desktop_id> <dst_node_id>
 on_node_transfer(){
     # node_add <monitor_id> <desktop_id> <ip_id> <node_id>

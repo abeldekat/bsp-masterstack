@@ -12,19 +12,18 @@
 # When the user has not changed his global settings the initial values
 # will be the same as configured in bspwmrc
 
-
-source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/state.sh";
 
 GUARDLISTENER="$ROOT/listeners/guardlistener.sh";
 
 # The kill command invokes a trap on the process of the guardlistener
 # reverting the globals back to their initial values
-_remove_listener_and_revert_globals() {
-    local old_pid="$(get_guard_data | valueof pid)";
-    [[ -n $old_pid ]] && kill $old_pid; 
+_stop_listener_and_revert_globals() {
+    local pid="$(get_guard_data | valueof pid)";
+    [[ -n $pid ]] && kill $pid 2> /dev/null || true; 
     set_guard_data 'pid' "";
 }
+
 # finds all desktops whose pid is not empty
 _get_desktops_to_guard(){
     local result=();
@@ -35,13 +34,18 @@ _get_desktops_to_guard(){
     echo "${result[@]}";
 }
 
+# start the listener if there are desktops to guard
 _start(){
     local desktops_to_guard=($(_get_desktops_to_guard));
 
     if [[ ${#desktops_to_guard[@]} -gt 0 ]]; then
         # echo "Starting guardlistener for desktops[${desktops_to_guard[@]}]";
-        bash $GUARDLISTENER ${desktops_to_guard[@]};
+        bash $GUARDLISTENER ${desktops_to_guard[@]} &
+        GUARD_PID=$!;
+        disown;
+        set_guard_data 'pid' "$GUARD_PID";
+        echo "GUARD: [$GUARD_PID]";
     fi;
 }
-_remove_listener_and_revert_globals;
+_stop_listener_and_revert_globals;
 _start;
