@@ -13,7 +13,7 @@ source "$ROOT/lib/desktop.sh";
 _on_kill_main_process(){
     # echo "[$$} Guard, main process killed...";
     # Remove process id from state
-    set_guard_data 'pid' "";
+    clear_guard_id;
     _apply_globals backup_dict;
 }
 

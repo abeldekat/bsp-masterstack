@@ -19,16 +19,16 @@ GUARDLISTENER="$ROOT/listeners/guardlistener.sh";
 # The kill command invokes a trap on the process of the guardlistener
 # reverting the globals back to their initial values
 _stop_listener_and_revert_globals() {
-    local pid="$(get_guard_data | valueof pid)";
+    local pid="$(get_guard_id)";
     [[ -n $pid ]] && kill $pid 2> /dev/null || true; 
-    set_guard_data 'pid' "";
+    clear_guard_id;
 }
 
 # finds all desktops whose pid is not empty
 _get_desktops_to_guard(){
     local result=();
     while read -r desktop; do
-        pid=$(get_desktop_options "$desktop" | valueof pid);
+        pid=$(get_pid "$desktop");
         [[ -n "$pid" ]] && result+=($desktop);
     done < <(list_desktops)
     echo "${result[@]}";
@@ -43,7 +43,7 @@ _start(){
         bash $GUARDLISTENER ${desktops_to_guard[@]} &
         GUARD_PID=$!;
         disown;
-        set_guard_data 'pid' "$GUARD_PID";
+        save_guard_id "$GUARD_PID";
         echo "GUARD: [$GUARD_PID]";
     fi;
 }

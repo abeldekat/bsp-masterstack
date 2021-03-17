@@ -21,15 +21,16 @@ source "$ROOT/handlers/on_event.sh";
 # The command listener needs to be killed explicitly
 _on_kill_main_process(){
     # Remove process id from state
-    set_desktop_option $DESKTOPNAME 'pid' "";
+    clear_pid $DESKTOPNAME;
     # echo "[$$} Main process killed, kill command process [$COMMAND_PID]...";
     kill $COMMAND_PID 2> /dev/null | true;
 }
 
-# If the command listener is killed than also remove the queue
+# If the command listener is killed than also remove the fifos
 _on_kill_command_process(){
-    # echo "[$$] Command process killed, remove queue(fifo)...";
-    rm -f "$THIS_DESKTOP_QUEUE";
+    # echo "[$$] Command process killed, remove fifos...";
+    rm -f "$THIS_FIFO";
+    rm -f "$THIS_REPLY_FIFO";
 }
 
 # The desktop id in the events do not always share the same position
@@ -51,16 +52,15 @@ _should_add_event(){
     local result=false;
     local desktop_id="$(_find_desktop_id_in_event $@)";
     if [[ -n "$desktop_id" ]]; then
-        local desktop_name_event=$(get_desktop_name_from_id "$desktop_id");
-        [[ "$desktop_name_event" == "$DESKTOPNAME" ]] && result=true;
+        local desktop=$(get_desktop_name_from_id "$desktop_id");
+        [[ "$desktop" == "$DESKTOPNAME" ]] && result=true;
     fi;
     echo $result;
 }
 
 # Executes commands
 _execute_command(){
-    cmd=$1; shift;
-    # echo "[$$] Execute command $cmd";
+    local cmd=$1; shift;
 
     case "$cmd" in
       node_add) on_node_add "$@" ;;
@@ -74,17 +74,16 @@ _execute_command(){
 }
 
 # Reads and handles all commands aimed at this desktop
-# The command queue needs to be closed and removed on exit
+# The command fifo needs to be closed and removed on exit
 _listen_for_commands(){
     trap "_on_kill_command_process" EXIT;
-    # echo "[$$] Start listening for commands";
 
-    [[ ! -p $THIS_DESKTOP_QUEUE ]] && mkfifo $THIS_DESKTOP_QUEUE;
+    [[ ! -p $THIS_FIFO ]] && mkfifo $THIS_FIFO;
     while true; do 
         if read -r -a line; then
             _execute_command ${line[@]};
         fi
-    done < "$THIS_DESKTOP_QUEUE"
+    done < "$THIS_FIFO"
 }
 
 # Read bspwm events
@@ -92,11 +91,10 @@ _listen_for_commands(){
 _listen_for_events(){
     trap "_on_kill_main_process" EXIT;
     local subscriptions=(node_add node_remove node_transfer);
-    # echo "[$$] Start listening for events ${subscriptions[*]}";
 
     while read -r -a line; do
         if "$(_should_add_event ${line[@]})"; then
-            echo "${line[*]}" > "$THIS_DESKTOP_QUEUE";
+            echo "${line[*]}" > "$THIS_FIFO";
         fi;
     done < <(bspc subscribe ${subscriptions[*]})
 }
@@ -106,14 +104,17 @@ DESKTOPNAME="$1"; shift;
 # Globals are based on orientation 
 set_runtime_globals "$1"; shift;
 
-# Start listening for commands: user commands and selected bspwm events
-THIS_DESKTOP_QUEUE="$(get_desktop_fifo $DESKTOPNAME)";
+# Fifos
+THIS_REPLY_FIFO="$1"; shift
+THIS_FIFO="$(get_command_fifo $DESKTOPNAME)";
+
+# Start listening for commands
 _listen_for_commands &
 COMMAND_PID=$!;
-# echo "[$$] Command pid is [$COMMAND_PID]";
 
 # Transform an existing desktop if needed
 transform_if_needed;
 
-# Start listening for bspwm events for this desktop
-_listen_for_events
+# Start listening for bspwm events aimed at this desktop
+echo "$READY_REPLY" > $THIS_REPLY_FIFO;
+_listen_for_events;
