@@ -12,10 +12,12 @@ source "$ROOT/lib/bspc.sh";
 source "$ROOT/handlers/config.sh";
 source "$ROOT/handlers/runtime_globals.sh";
 source "$ROOT/handlers/transform.sh";
-source "$ROOT/handlers/orientation.sh";
+source "$ROOT/handlers/rotate.sh";
 source "$ROOT/handlers/master.sh";
 source "$ROOT/handlers/dump.sh";
 source "$ROOT/handlers/zoom.sh";
+source "$ROOT/handlers/increment_decrement.sh";
+source "$ROOT/handlers/equalize.sh";
 source "$ROOT/handlers/on_event.sh";
 
 # The command listener needs to be killed explicitly
@@ -34,6 +36,7 @@ _on_kill_command_process(){
 }
 
 # The desktop id in the events do not always share the same position
+# Can return an empty string in case node_transfer originates from this desktop
 _find_desktop_id_in_event(){
     local desktop_id="";
     if [[ "$1" == "node_transfer" ]]; then
@@ -61,20 +64,21 @@ _should_add_event(){
 # Executes commands
 _execute_command(){
     local cmd=$1; shift;
-
     case "$cmd" in
       node_add) on_node_add "$@" ;;
       node_remove) on_node_remove "$@" ;;
       node_transfer) on_node_transfer "$@" ;;
       zoom) zoom ;;
-      rotate) change_orientation ;;
+      rotate) rotate_to_new_orientation ;;
+      increment) increment ;;
+      decrement) decrement ;;
+      equalize) equalize ;;
       dump) dump ;;
       *) ;;
     esac;
 }
 
 # Reads and handles all commands aimed at this desktop
-# The command fifo needs to be closed and removed on exit
 _listen_for_commands(){
     trap "_on_kill_command_process" EXIT;
 
@@ -115,6 +119,6 @@ COMMAND_PID=$!;
 # Transform an existing desktop if needed
 transform_if_needed;
 
-# Start listening for bspwm events aimed at this desktop
+# Start listening for bspwm events targeted at this desktop
 echo "$READY_REPLY" > $THIS_REPLY_FIFO;
 _listen_for_events;

@@ -1,0 +1,90 @@
+# Adds a layer for bsp-masterstack
+# view
+# toggleview
+# tag
+# toggeltag
+# spawm dmenucmd, termcmd
+# togglebar
+# focusstack
+# incnmaster
+# setmfact
+# zoom
+# view
+# killclient
+# setlayout
+# togglefloating
+# focusmon
+# tagmon
+# quit
+#
+super + z
+    . $XDG_CONFIG_HOME/sxhkd/normal.mode
+
+super + shift + Return
+	$TERMINAL
+
+super + Return
+	bsp-masterstack.sh zoom
+
+super + a
+	bsp-masterstack.sh start
+
+super + s
+	bsp-masterstack.sh stop
+
+super + r
+	bsp-masterstack.sh rotate
+
+super + i
+	bsp-masterstack.sh increment
+
+super + d
+	bsp-masterstack.sh decrement
+
+super + e
+	bsp-masterstack.sh equalize
+
+super + p
+	dmenu_run -fn "Monospace-14-medium"
+
+# Standard
+# super + {h,j,k,l}
+# 	bspc node -f {west,south,north,east}
+
+# Master stack navigation
+super + {j,k}
+    bspc node --focus {next.local.leaf.window.automatic,\
+	prev.local.leaf.window.automatic}
+
+# # Master stack resize: west,east
+super + {h,l}
+	n=20; \
+  	{ d1=left;   d2=right;  dx=-$n; dy=0;   \
+  	, d1=right;  d2=left;   dx=$n;  dy=0;   \
+  } \
+  bspc node --resize $d1 $dx $dy || bspc node --resize $d2 $dx $dy
+
+# # Master stack resize: north,south
+super + shift + {h,l}
+	n=20; \
+  	{ d1=bottom; d2=top;    dx=0;   dy=$n;  \
+  	, d1=top;    d2=bottom; dx=0;   dy=-$n; \
+  } \
+  bspc node --resize $d1 $dx $dy || bspc node --resize $d2 $dx $dy
+
+# Standard...
+super + {_,shift + }w
+	bspc node -{c,k}
+
+# Standard...
+super + m
+	bspc desktop -l next
+
+# Standard...
+super + {1-9,0}
+	bspc desktop -f '^{1-9,10}'
+
+# Not standard
+# super + {t,shift + t,s,f}
+super + {t,shift + space,space,f}
+ 	bspc node -t '~{tiled,pseudo_tiled,floating,fullscreen}'

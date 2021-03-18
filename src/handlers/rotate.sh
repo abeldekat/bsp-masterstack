@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
+#
+# The idea: A rotation results in a new orientation
 
 declare -A _orientations=(["$DIR_WEST"]="$DIR_NORTH" ["$DIR_NORTH"]="$DIR_EAST" \
     ["$DIR_EAST"]="$DIR_SOUTH" ["$DIR_SOUTH"]="$DIR_WEST");
 
-change_orientation(){
+rotate_to_new_orientation(){
     local new_orientation=${_orientations["$ORIENTATION"]};
     local old_stack_position=$STACK_POSITION;
 
@@ -24,7 +26,7 @@ change_orientation(){
 # into containing two nodes. It the ORIENTATION is not west,
 # the ORIENTATION needs to be restored.
 # Default BSPWM operation resembles the WEST orientation.
-restore_orientation_if_needed(){
+rotate_to_active_orientation(){
     [[ $ORIENTATION == $DIR_WEST ]] && return;
     local rotation="90";
 

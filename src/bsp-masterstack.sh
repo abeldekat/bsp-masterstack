@@ -151,8 +151,8 @@ start(){
     echo "[$LISTENER_PID]";
 }
 
-# Use case: Send a node from stack to master.
-# Use case: Swap master with top of the stack.
+# Use case 1: Send a node from stack to master and send master to top of stack
+# Use case 2: Swap master with top of the stack
 zoom(){
     local dfifo="$(_get_fifo_for_focused_desktop)";
     [[ -p $dfifo ]] && echo "zoom" > "$dfifo";
@@ -163,6 +163,25 @@ zoom(){
 rotate(){
     local dfifo="$(_get_fifo_for_focused_desktop)";
     [[ -p $dfifo ]] && echo "rotate" > "$dfifo";
+}
+
+# Use case: increment number of master windows
+increment(){
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "increment" > "$dfifo";
+}
+
+# Use case: decrement number of master windows
+decrement(){
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "decrement" > "$dfifo";
+}
+
+# Use case: Resets all windows in desktop to default size
+# Uses equalize and balance
+equalize(){
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "equalize" > "$dfifo";
 }
 
 # Use case: Inspect runtime state
@@ -183,6 +202,9 @@ case "$action" in
     stop)       stop "$1" ;;
     zoom)       zoom ;;
     rotate)     rotate ;;
+    increment)  increment ;;
+    decrement)  decrement ;;
+    equalize)   equalize ;;
     dump)       dump ;;
     help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;

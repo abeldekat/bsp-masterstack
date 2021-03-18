@@ -11,7 +11,7 @@ on_node_add(){
 
     # User added a leaf to a desktop containing only one leaf: Two leaves
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
-        restore_orientation_if_needed;
+        rotate_to_active_orientation;
         return;
     fi;
 
