@@ -17,7 +17,6 @@ source "$ROOT/handlers/transform.sh";
 source "$ROOT/handlers/on_event.sh";
 source "$ROOT/handlers/master.sh";
 #
-source "$ROOT/handlers/increment_decrement.sh";
 source "$ROOT/handlers/equalize.sh";
 source "$ROOT/handlers/rotate.sh";
 source "$ROOT/handlers/zoom.sh";
@@ -72,8 +71,6 @@ _execute_command(){
       node_transfer) on_node_transfer "$@" ;;
       zoom) zoom ;;
       rotate) rotate_to_new_orientation ;;
-      increment) increment ;;
-      decrement) decrement ;;
       equalize) equalize ;;
       dump) dump ;;
       acknowledge) transform_if_needed; _acknowledge ;;

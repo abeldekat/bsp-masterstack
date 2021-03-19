@@ -75,16 +75,14 @@ _wait_for_reply(){
 # $1 The target desktop
 # $2 The focused desktop
 # Echo true if 
-# 1. the target desktop has at least two leaves which will trigger transformation
-# 2. the script is invoked from another desktop which is unguarded
+# 1. the script is invoked from another desktop
+# 1. that desktop is unguarded and thus acts under default global settings
 _should_caller_be_guarded(){
     local desktop=$1;
     local fdesktop=$2;
     local result=false;
-    if "$(has_master $desktop)"; then
-        if [[ $desktop != $fdesktop ]]; then
-            [[ -z "$(get_pid $fdesktop)" ]] && result=true;
-        fi
+    if [[ $desktop != $fdesktop ]]; then
+        [[ -z "$(get_pid $fdesktop)" ]] && result=true;
     fi
     echo $result;
 }
@@ -93,7 +91,7 @@ _should_caller_be_guarded(){
 # $2 Focused desktop
 # Sets dummy pid for desktop
 # Sets dummy pid on focused desktop if necessary
-# Echo true if focused desktop must also been guarded, false otherwise
+# Echo true if focused desktop must also be guarded, false otherwise
 _guard_prepare(){
     local desktop=$1;
     local fdesktop=$2;
@@ -165,18 +163,6 @@ rotate(){
     [[ -p $dfifo ]] && echo "rotate" > "$dfifo";
 }
 
-# Use case: increment number of master windows
-increment(){
-    local dfifo="$(_get_fifo_for_focused_desktop)";
-    [[ -p $dfifo ]] && echo "increment" > "$dfifo";
-}
-
-# Use case: decrement number of master windows
-decrement(){
-    local dfifo="$(_get_fifo_for_focused_desktop)";
-    [[ -p $dfifo ]] && echo "decrement" > "$dfifo";
-}
-
 # Use case: Resets all windows in desktop to default size
 # Uses equalize and balance
 equalize(){
@@ -202,8 +188,6 @@ case "$action" in
     stop)       stop "$1" ;;
     zoom)       zoom ;;
     rotate)     rotate ;;
-    increment)  increment ;;
-    decrement)  decrement ;;
     equalize)   equalize ;;
     dump)       dump ;;
     help)       man bsp-masterstack ;;
