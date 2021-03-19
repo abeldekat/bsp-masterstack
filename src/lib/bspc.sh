@@ -72,11 +72,15 @@ query_focused_node(){
     echo "$(bspc query -N -n focused -d $1)";
 }
 
-# $1 desktoppath
+# $1 path
 # $2 orientation
 # $3 presel_ratio
-receptacle(){
-    bspc node "$1/" -p $2 -o $3 -i;
+create_receptacle(){
+    bspc node "$1" -p $2 -o $3 -i;
+}
+
+get_receptacle(){
+    echo $(bspc query -N $1 -n .leaf.descendant_of.!window);
 }
 
 # $1 The name of the desktop

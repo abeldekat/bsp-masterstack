@@ -24,7 +24,7 @@ transform_if_needed(){
     unset leaves[-1];
 
     # echo "transform, replace stack [$STACK] with a receptacle";
-    receptacle $DESKTOP "$STACK_ORIENTATION" $PRESEL_RATIO;
+    create_receptacle $DESKTOP_ROOT "$STACK_ORIENTATION" $PRESEL_RATIO;
 
     # echo "transform, send all leaves to new stack [$STACK]";
     set_removal_adjustment true;

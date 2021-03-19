@@ -6,7 +6,7 @@ _activate_orientation(){
 
     local nodeid=$1;
     # echo "Replace master with a receptacle";
-    receptacle $DESKTOP "$ORIENTATION" $PRESEL_RATIO;
+    create_receptacle $DESKTOP_ROOT "$ORIENTATION" $PRESEL_RATIO;
     # echo "Move new master to receptacle";
     transfer $nodeid $MASTER;
 }
@@ -50,7 +50,7 @@ on_node_remove(){
     # echo "on_node_remove, test if master has been removed";
     if "$(is_master_node $removed_id)"; then
         # echo "on_node_remove, restore master with receptacle ";
-        receptacle $DESKTOP $ORIENTATION $PRESEL_RATIO;
+        create_receptacle $DESKTOP_ROOT $ORIENTATION $PRESEL_RATIO;
 
         # echo "on_node_remove, retrieve top of the stack";
         local new_master_id="$(query_node $STACK_NEWNODE)";
