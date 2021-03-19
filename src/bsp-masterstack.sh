@@ -170,6 +170,18 @@ equalize(){
     [[ -p $dfifo ]] && echo "equalize" > "$dfifo";
 }
 
+# Use case: Increment master section with one window
+increment(){
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "increment" > "$dfifo";
+}
+
+# Use case: Decrement master section with one window
+decrement(){
+    local dfifo="$(_get_fifo_for_focused_desktop)";
+    [[ -p $dfifo ]] && echo "decrement" > "$dfifo";
+}
+
 # Use case: Inspect runtime state
 dump(){
     local dfifo="$(_get_fifo_for_focused_desktop)";
@@ -189,6 +201,8 @@ case "$action" in
     zoom)       zoom ;;
     rotate)     rotate ;;
     equalize)   equalize ;;
+    increment)  increment ;;
+    decrement)  decrement ;;
     dump)       dump ;;
     help)       man bsp-masterstack ;;
     version)    echo "$VERSION" ;;
