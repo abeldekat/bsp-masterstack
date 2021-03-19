@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
 
-# A first attempt at maintaining master state
-# This is required when using removal_adjustment=false
-# The removal adjustment setting is important for a better UI
-
-# For now, only one masterid exists
 _masterid="";
 
 save_master_node(){

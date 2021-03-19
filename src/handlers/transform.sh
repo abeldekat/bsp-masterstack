@@ -18,21 +18,23 @@ _merge_current_stack_and_master_reversed(){
 transform_if_needed(){
     "$(has_no_master $DESKTOPNAME)" && return;
 
-    # echo "Transforming an existing layout. Orientation: [$ORIENTATION]";
+    # echo "transform, orientation is [$ORIENTATION]";
     local leaves=($(_merge_current_stack_and_master_reversed));
     local new_master_id="${leaves[-1]}";
     unset leaves[-1];
 
-    # echo "Replace stack [$STACK] with a receptacle";
-    receptacle $DESKTOP "$(find_stack_orientation)" $PRESEL_RATIO;
+    # echo "transform, replace stack [$STACK] with a receptacle";
+    receptacle $DESKTOP "$STACK_ORIENTATION" $PRESEL_RATIO;
 
-    # Send all leaves the new stack
+    # echo "transform, send all leaves to new stack [$STACK]";
     set_removal_adjustment true;
     for leaf in "${leaves[@]}"; do
         transfer $leaf $STACK;
     done
     set_removal_adjustment false;
     balance $STACK;
+
+    # echo "transform, save node [$new_master_id] as master";
     save_master_node $new_master_id;
     $(desktop_has_focus $DESKTOPNAME) && focus_node $new_master_id;
 }

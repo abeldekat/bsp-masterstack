@@ -9,16 +9,18 @@
 source "$ROOT/lib/state.sh";
 source "$ROOT/lib/desktop.sh";
 source "$ROOT/lib/bspc.sh";
+#
 source "$ROOT/handlers/config.sh";
 source "$ROOT/handlers/runtime_globals.sh";
-source "$ROOT/handlers/transform.sh";
-source "$ROOT/handlers/rotate.sh";
-source "$ROOT/handlers/master.sh";
 source "$ROOT/handlers/dump.sh";
-source "$ROOT/handlers/zoom.sh";
+source "$ROOT/handlers/transform.sh";
+source "$ROOT/handlers/on_event.sh";
+source "$ROOT/handlers/master.sh";
+#
 source "$ROOT/handlers/increment_decrement.sh";
 source "$ROOT/handlers/equalize.sh";
-source "$ROOT/handlers/on_event.sh";
+source "$ROOT/handlers/rotate.sh";
+source "$ROOT/handlers/zoom.sh";
 
 # The command listener needs to be killed explicitly
 _on_kill_main_process(){
@@ -74,6 +76,7 @@ _execute_command(){
       decrement) decrement ;;
       equalize) equalize ;;
       dump) dump ;;
+      acknowledge) transform_if_needed; _acknowledge ;;
       *) ;;
     esac;
 }
@@ -82,7 +85,6 @@ _execute_command(){
 _listen_for_commands(){
     trap "_on_kill_command_process" EXIT;
 
-    [[ ! -p $THIS_FIFO ]] && mkfifo $THIS_FIFO;
     while true; do 
         if read -r -a line; then
             _execute_command ${line[@]};
@@ -103,22 +105,26 @@ _listen_for_events(){
     done < <(bspc subscribe ${subscriptions[*]})
 }
 
+# Acknowledges to the caller that the listener is ready
+_acknowledge(){
+        echo "$READY_REPLY" > "$THIS_REPLY_FIFO";
+}
+
 # Global variables
-DESKTOPNAME="$1"; shift; 
+DESKTOPNAME="$1"; shift;
 # Globals are based on orientation 
 set_runtime_globals "$1"; shift;
-
-# Fifos
-THIS_REPLY_FIFO="$1"; shift
+# Fifo
+THIS_REPLY_FIFO="$1"; shift;
 THIS_FIFO="$(get_command_fifo $DESKTOPNAME)";
+[[ ! -p $THIS_FIFO ]] && mkfifo $THIS_FIFO;
 
 # Start listening for commands
 _listen_for_commands &
 COMMAND_PID=$!;
 
-# Transform an existing desktop if needed
-transform_if_needed;
+# Transform an existing desktop if needed and acknowledge to caller
+echo "acknowledge" > "$THIS_FIFO";
 
-# Start listening for bspwm events targeted at this desktop
-echo "$READY_REPLY" > $THIS_REPLY_FIFO;
+# Start listening for bspwm events
 _listen_for_events;

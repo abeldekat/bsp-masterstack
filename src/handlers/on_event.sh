@@ -1,26 +1,38 @@
 #!/usr/bin/env bash
 
+_activate_orientation(){
+    # echo "Test if orientation is default";
+    [[ $ORIENTATION == $DIR_WEST ]] && return;
+
+    local nodeid=$1;
+    # echo "Replace master with a receptacle";
+    receptacle $DESKTOP "$ORIENTATION" $PRESEL_RATIO;
+    # echo "Move new master to receptacle";
+    transfer $nodeid $MASTER;
+}
+
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_add(){
     local nodeid=$4;
-    # The new node will always become the master
-    save_master_node $nodeid; 
 
-    # User added a leaf to an empty desktop: One leaf
+    # echo "on_node_add, test for desktop with exactly one leaf";
     "$(is_leaf $DESKTOP)" && return;
 
-    # User added a leaf to a desktop containing only one leaf: Two leaves
+    # echo "on_node_add, save new node as master";
+    save_master_node $nodeid; 
+
+    # echo "on_node_add, test for desktop with exactly two leaves"
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
-        rotate_to_active_orientation;
+        _activate_orientation $nodeid;
         return;
     fi;
 
-    # Generic algorithm for three or more leaves
+    # echo "on_node_add, there are three or more leaves"
     if "$(is_node_in_stack $nodeid $MASTER)"; then
-        # echo "Add: Moving to master";
+        # echo "on_node_add, move new node from stack to master"
         transfer $nodeid $MASTER;
     fi;
-    # echo "Add: Moving brother of master to top of the stack";
+    # echo "on_node_add, move old master to top of the stack"
     transfer $MASTER_NEWNODE/brother $STACK;
     balance $STACK;
 }
@@ -28,21 +40,29 @@ on_node_add(){
 # node_add <monitor_id> <desktop_id> <node_id>
 on_node_remove(){
     local removed_id=$3;
+
+    # echo "[$$] on_node_remove, test for existance of master and stack";
     if "$(has_no_master $DESKTOPNAME)"; then
         save_master_node "";
         return;
     fi
 
-    # Root is not a leaf and master was deleted
-    # There were at least three nodes
+    # echo "on_node_remove, test if master has been removed";
     if "$(is_master_node $removed_id)"; then
-        # Create a new master area
+        # echo "on_node_remove, restore master with receptacle ";
         receptacle $DESKTOP $ORIENTATION $PRESEL_RATIO;
-        # Move top of the stack to this new area
-        transfer $STACK_NEWNODE $MASTER;
-        focus_node $MASTER;
+
+        # echo "on_node_remove, retrieve top of the stack";
+        local new_master_id="$(query_node $STACK_NEWNODE)";
+
+        # echo "on_node_remove, move node [$new_master_id] to receptacle ";
+        transfer $new_master_id $MASTER;
+
+        # echo "on_node_remove, save new master id [$new_master_id]";
+        save_master_node "$new_master_id"; 
+
+        focus_node $new_master_id;
     fi
-    save_master_node "$(query_node $MASTER)"; 
     balance $STACK;
 }
 
