@@ -35,12 +35,6 @@ super + s
 super + r
 	bsp-masterstack.sh rotate
 
-super + i
-	bsp-masterstack.sh increment
-
-super + d
-	bsp-masterstack.sh decrement
-
 super + e
 	bsp-masterstack.sh equalize
 
