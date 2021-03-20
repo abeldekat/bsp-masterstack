@@ -27,6 +27,7 @@ set_runtime_globals(){
     DESKTOP="@$DESKTOPNAME:";
     DESKTOP_ROOT="$DESKTOP/";
     MASTER="$DESKTOP/$MASTER_POSITION";
+    MASTER_INCREMENT="$MASTER/2";
     STACK="$DESKTOP/$STACK_POSITION";
     # For example: @I:/1/1/
     MASTER_NEWNODE="$MASTER/$_new_node";
