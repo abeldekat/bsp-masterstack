@@ -60,8 +60,7 @@ on_node_remove(){
 
         # echo "on_node_remove, save new master id [$new_master_id]";
         save_master_node "$new_master_id"; 
-
-        focus_node $new_master_id;
+        focus_master_node;
     fi
     balance $STACK;
 }

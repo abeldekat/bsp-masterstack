@@ -14,3 +14,6 @@ is_master_node(){
     [[ $1 == $_masterid ]] && result=true; 
     echo $result;
 }
+focus_master_node(){
+    focus_node $_masterid;
+}

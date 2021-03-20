@@ -36,5 +36,5 @@ transform_if_needed(){
 
     # echo "transform, save node [$new_master_id] as master";
     save_master_node $new_master_id;
-    $(desktop_has_focus $DESKTOPNAME) && focus_node $new_master_id;
+    $(desktop_has_focus $DESKTOPNAME) && focus_master_node;
 }
