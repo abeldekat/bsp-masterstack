@@ -23,6 +23,7 @@ rotate_to_new_orientation(){
 
     if [[ $old_master_position == $MASTER_POSITION ]]; then
         # echo "Correcting stack order [$STACK]";
+        rotate $MASTER 180;
         rotate $STACK 180;
     fi
     focus_master_node;

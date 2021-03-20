@@ -66,6 +66,12 @@ query_leaves_reversed(){
     echo "$(bspc query -N $1 -n .descendant_of.leaf.window | tac)";
 }
 
+# $1 path to query
+# Result: Number of leaves in path
+query_number_of_leaves(){
+    echo "$(bspc query -N $1 -n .descendant_of.leaf.window | wc -l)";
+}
+
 # $1 desktopname
 # Result: the focused node
 query_focused_node(){
