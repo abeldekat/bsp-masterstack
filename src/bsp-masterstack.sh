@@ -124,7 +124,9 @@ start(){
     local desktop="$(_argument_or_focused_desktop $1 $fdesktop)";
 
     # echo "Existing process administration";
-    _kill_process "$(get_pid $desktop)";
+    local running_pid="$(get_pid $desktop)";
+    [[ -n $running_pid ]] && \
+        echo "[$desktop]: Already runs on pid [$running_pid]" && return;
 
     # echo "Prepare guard"
     local guards_caller="$(_guard_prepare $desktop $fdesktop)"; 
