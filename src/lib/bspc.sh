@@ -61,6 +61,12 @@ balance(){
 }
 
 # $1 path to query
+# Result: All leaves in path
+query_leaves(){
+    echo "$(bspc query -N $1 -n .descendant_of.leaf.window)";
+}
+
+# $1 path to query
 # Result: All leaves in path in reversed order
 query_leaves_reversed(){
     echo "$(bspc query -N $1 -n .descendant_of.leaf.window | tac)";
