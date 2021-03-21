@@ -21,11 +21,10 @@ rotate_to_new_orientation(){
     # echo "Saving orientation [$new_orientation]";
     set_desktop_option $DESKTOPNAME 'orientation' "$ORIENTATION";
 
-    # echo "Always correct master[$MASTER] order if any";
-    rotate "$MASTER" 180;
     if [[ $old_master_position == $MASTER_POSITION ]]; then
-        # echo "Correcting stack order [$STACK]";
-        rotate $STACK 180;
+        # echo "Correcting master[$MASTER] and stack [$STACK] order";
+        rotate "$MASTER" 180;
+        rotate "$STACK" 180;
     fi
     focus_master_node;
 }

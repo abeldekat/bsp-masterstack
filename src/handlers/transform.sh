@@ -4,7 +4,6 @@
 # Find all leaves in reversed order. Replace the stack with receptacle.
 # Send the leaves to the receptacle.
 # The last leaf will remain and become master
-
 _merge_current_stack_and_master_reversed(){
     local leaves_in_stack=($(query_leaves_reversed $STACK));
     # echo "Stack: [$STACK]: ${leaves_in_stack[@]}";
@@ -16,6 +15,10 @@ _merge_current_stack_and_master_reversed(){
 }
 
 transform_if_needed(){
+    # echo "transform: removing all receptacles on desktop[$DESKTOPNAME]"; 
+    remove_all_receptacles $DESKTOP_ROOT;
+
+    # echo "transform: there should be a master and a stack";
     "$(has_no_master $DESKTOPNAME)" && return;
 
     # echo "transform, orientation is [$ORIENTATION]";

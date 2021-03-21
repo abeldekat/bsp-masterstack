@@ -103,6 +103,12 @@ desktop_has_focus(){
     echo $result;
 }
 
+# $1 The path to remove all receptacles from
+remove_all_receptacles(){
+    bspc query -N "$1" -n .leaf.descendant_of.!window | \
+        xargs -I {} bspc node {} -k;
+}
+
 # Empty desktop or root is a leaf
 # $1 The name of the desktop
 has_no_master(){

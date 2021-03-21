@@ -24,6 +24,16 @@ set_runtime_globals(){
     source "$_global_configs/${_configs[$ORIENTATION]}.sh"; 
     STACK_ORIENTATION=${_master_to_stack["$ORIENTATION"]};
 
+    # Constants
+    # On increment, the increment stack will be on second child
+    # For example: @/1/2, with master on @/1/1
+    # For example: @/2/2, with master on @/2/1
+    INCREMENT_POSITION="2"
+    # Which node in the increment stack will receive a receptacle. 
+    # Which node in the increment stack will be transferred back to stack
+    # -1 means last
+    INCREMENT_TAIL_INDEX="-1"
+
     DESKTOP="@$DESKTOPNAME:";
     DESKTOP_ROOT="$DESKTOP/";
     MASTER="$DESKTOP/$MASTER_POSITION";

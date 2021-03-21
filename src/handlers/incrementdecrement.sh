@@ -3,69 +3,60 @@
 # Master orientation to its increment position mapping
 declare -A _to_increment_position=(["$DIR_WEST"]="$DIR_SOUTH" \
     ["$DIR_NORTH"]="$DIR_EAST" \
-    ["$DIR_EAST"]="$DIR_NORTH" \
-    ["$DIR_SOUTH"]="$DIR_WEST");
+    ["$DIR_EAST"]="$DIR_SOUTH" \
+    ["$DIR_SOUTH"]="$DIR_EAST");
 
 NR_INCREMENTS=0;
+
+# On the last incrementation the stack is empty. Bspwm will remove
+# that internal node thereby invalidating the global variables.
+# Make sure the stack remains part of the tree by adding a small
+# receptacle
+_protect_stack_with_receptacle(){
+    create_receptacle $DESKTOP_ROOT "$STACK_ORIENTATION" $STACK_PROTECTION_RATIO;
+}
 
 # $1 target leaf in master increment section
 # $2 number of leafs in $STACK
 _increment_top_of_stack_to_master_section(){
-    local target=$1;
+    local target_leaf=$1;
     local nr_in_stack=$2;
 
-    create_receptacle $target ${_to_increment_position[$ORIENTATION]} \
+    create_receptacle $target_leaf ${_to_increment_position[$ORIENTATION]} \
         $PRESEL_RATIO;
     local receptacle_id="$(get_receptacle $MASTER_INCREMENT)";
 
     # echo "increment: Move top of the stack to receptacle [$receptacle_id]";
     if [[ $nr_in_stack -eq 1 ]]; then
-        # echo "increment: stack will be removed";
         transfer $STACK $receptacle_id;
-        balance $DESKTOP_ROOT;
+
+        _protect_stack_with_receptacle;
     else
         transfer $STACK_NEWNODE $receptacle_id;
-        balance $MASTER;
     fi
-}
-
-# $1 number of leafs in $STACK
-# $2 number of leafs in $MASTER_INCREMENT
-_decrement_to_top_of_stack(){
-    local nr_in_stack=$1;
-    local nr_in_increment=$2;
-
-    local src_leaf="";
-    if "$(_all_is_incremented $nr_in_stack $nr_in_increment)"; then
-        # echo "decrement: use receptacle to restore stack";
-        create_receptacle $DESKTOP_ROOT "$STACK_ORIENTATION" $PRESEL_RATIO;
-        src_leaf="${leaves_in_stack[$INCREMENT_TAIL_INDEX]}";
-    else
-        src_leaf="${leaves_in_increment[$INCREMENT_TAIL_INDEX]}";
-    fi
-
-    # echo "Move src_leaf [$src_leaf] of increment to top of the stack";
-    transfer $src_leaf $STACK;
     balance $MASTER;
-    balance $STACK;
 }
 
-# When all available windows in the stack are incremented,
-# the increment section, originally on $MASTER_INCREMENT,
-# will fallback to position $STACK
+# $1 source leaf in master increment section
+# $2 number of leafs in $STACK
+_decrement_to_top_of_stack(){
+    local src_leaf=$1;
+    local nr_in_stack=$2;
+
+    transfer $src_leaf $STACK;
+    if "$(_all_is_incremented $nr_in_stack)"; then
+        equalize;
+    else
+        balance $MASTER
+        balance $STACK;
+    fi
+}
+
 # $1 Number of windows in the stack
-# $2 Number of windows in the increment section
 _all_is_incremented(){
     local nr_in_stack=$1;
-    local nr_in_increment=$2;
     local result=false;
-
-    # No windows in increment section because it does not exist
-    if [[ $nr_in_increment -eq 0 ]]; then
-        # Number of windows in stack now containing the increments 
-        # and that number is equal to recorded increments
-        [[ $nr_in_stack -eq $NR_INCREMENTS ]] && result=true
-    fi
+    [[ $nr_in_stack -eq 0 ]] && result=true;
     echo $result;
 }
 
@@ -78,10 +69,11 @@ increment(){
 
     # echo "increment: retrieve leaves in stack [$STACK]";
     local nr_in_stack="$(query_number_of_leaves $STACK)";
-    # echo "increment: retrieve leaves in increment [$MASTER_INCREMENT]";
+    "$(_all_is_incremented $nr_in_stack)" && return;
+
+    # echo "increment: retrieve leaves in master increment [$MASTER_INCREMENT]";
     local leaves_in_increment=($(query_leaves $MASTER_INCREMENT));
     local nr_in_increment=${#leaves_in_increment[@]};
-    "$(_all_is_incremented $nr_in_stack $nr_in_increment)" && return;
 
     local target_leaf="$MASTER";
     [[ $nr_in_increment -gt 0 ]] && \
@@ -101,11 +93,15 @@ decrement(){
     # echo "decrement: retrieve leaves in stack [$STACK]";
     local leaves_in_stack=($(query_leaves $STACK));
     local nr_in_stack=${#leaves_in_stack[@]};
-    # echo "decrement: retrieve leaves in increment [$MASTER_INCREMENT]";
+
+    # echo "decrement: retrieve leaves in master increment [$MASTER_INCREMENT]";
     local leaves_in_increment=($(query_leaves $MASTER_INCREMENT));
     local nr_in_increment=${#leaves_in_increment[@]};
 
-    _decrement_to_top_of_stack $nr_in_stack $nr_in_increment;
+    local src_leaf="${leaves_in_increment[$INCREMENT_TAIL_INDEX]}";
+
+    # echo "decrement: [$nr_in_increment] leaves. source leaf [$src_leaf]";
+    _decrement_to_top_of_stack $src_leaf $nr_in_stack;
 
     NR_INCREMENTS="$(( $NR_INCREMENTS - 1 ))";
     # echo "decrement: counter end [$NR_INCREMENTS]";
