@@ -1,40 +1,55 @@
 #!/usr/bin/env bash
 
-_activate_orientation(){
+# Master is leaf and stack is leaf:
+# Activate orientation
+# Save new master
+_activate(){
+    local nodeid=$1;
+
+    save_master_node $nodeid; 
+
     # echo "Test if orientation is default";
     [[ $ORIENTATION == $DIR_WEST ]] && return;
 
-    local nodeid=$1;
     # echo "Replace master with a receptacle";
     create_receptacle $DESKTOP_ROOT "$ORIENTATION" $PRESEL_RATIO;
     # echo "Move new master to receptacle";
     transfer $nodeid $MASTER;
 }
 
+# $1 nodeid to transfer into the dynamic stack
+_handle_node_into_dynamic_stack(){
+    local nodeid=$1;
+
+    # echo "transfer node [$nodeid] to top of the dynamic stack"
+    transfer $nodeid $STACK;
+    balance $STACK;
+}
+
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_add(){
     local nodeid=$4;
 
-    # echo "on_node_add, test for desktop with exactly one leaf";
+    # echo "on_node_add: test for desktop with exactly one leaf";
     "$(is_leaf $DESKTOP)" && return;
 
-    # echo "on_node_add, save new node as master";
-    save_master_node $nodeid; 
-
-    # echo "on_node_add, test for desktop with exactly two leaves"
+    # echo "on_node_add: test for desktop with exactly two leaves"
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
-        _activate_orientation $nodeid;
+        _activate $nodeid;
         return;
-    fi;
+    fi
 
     # echo "on_node_add, there are three or more leaves"
-    if "$(is_node_in_stack $nodeid $MASTER)"; then
-        # echo "on_node_add, move new node from stack to master"
-        transfer $nodeid $MASTER;
-    fi;
-    # echo "on_node_add, move old master to top of the stack"
-    transfer $MASTER_NEWNODE/brother $STACK;
-    balance $STACK;
+    if ! "$(is_brother_of_master_node $nodeid)"; then
+        # echo "on_node_add: move new node from stack to master"
+        transfer $nodeid $MASTER_ID;
+    fi
+    if "$(has_increment_stack)"; then
+        handle_node_into_increment_stack $MASTER_ID;
+    else
+        _handle_node_into_dynamic_stack $MASTER_ID;
+    fi
+    save_master_node $nodeid; 
 }
 
 # node_add <monitor_id> <desktop_id> <node_id>

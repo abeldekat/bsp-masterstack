@@ -84,6 +84,11 @@ query_focused_node(){
     echo "$(bspc query -N -n focused -d $1)";
 }
 
+# $1 nodeid to retrieve brother for
+query_brother(){
+    echo "$(bspc query -N $1 -n @brother)";
+}
+
 # $1 path
 # $2 orientation
 # $3 presel_ratio
@@ -91,7 +96,8 @@ create_receptacle(){
     bspc node "$1" -p $2 -o $3 -i;
 }
 
-get_receptacle(){
+# $1 The path to find receptacles in
+query_receptacle(){
     echo $(bspc query -N $1 -n .leaf.descendant_of.!window);
 }
 

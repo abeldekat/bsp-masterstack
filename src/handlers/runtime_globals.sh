@@ -3,10 +3,12 @@
 # There are four orientations
 # Opposite orientations share the same global variables 
 
+MASTER_ID="";
+
 _global_configs="$ROOT/globals";
 _new_node="1"; # Initial polarity is enforced
 
-# Orientations to config
+# Orientations to global configs
 declare -A _configs=(["$DIR_WEST"]="master_on_one" \
     ["$DIR_NORTH"]="master_on_one" \
     ["$DIR_EAST"]="master_on_two" \
@@ -33,6 +35,7 @@ set_runtime_globals(){
     # Which node in the increment stack will be transferred back to stack
     # -1 means last
     INCREMENT_TAIL_INDEX="-1"
+    INCREMENT_HEAD_INDEX="0"
 
     DESKTOP="@$DESKTOPNAME:";
     DESKTOP_ROOT="$DESKTOP/";
