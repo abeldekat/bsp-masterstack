@@ -3,22 +3,27 @@
 # $1 node_to_bubble 
 _bubble_node_in_stack_to_top(){
     local node_to_bubble=$1;
-    # echo "bubble node $node_to_bubble to top of the stack";
+    local use_increment_stack=$2
+    # echo "bubble node[$node_to_bubble] to top of the stack";
 
-    local stack_leaves=($(query_leaves_reversed $STACK));
-    # echo "_bubble: leaves [${stack_leaves[*]}]"
+    local leaves=($(query_leaves_reversed $STACK));
+    if $use_increment_stack; then
+        increment_leaves=($(on_zoom_query_increment_stack));
+        local leaves=(${leaves[@]} ${increment_leaves[@]});
+    fi
+    # echo "_bubble: leaves [${leaves[*]}]"
 
     local start_swap=false;
-    local index_last=$(( ${#stack_leaves[@]} - 1 ));
+    local index_last=$(( ${#leaves[@]} - 1 ));
     if [[ $index_last -le 0 ]]; then return; fi;
 
-    for i in "${!stack_leaves[@]}"; do
-        if [[ "${stack_leaves[$i]}" = "$node_to_bubble" ]]; then
+    for i in "${!leaves[@]}"; do
+        if [[ "${leaves[$i]}" = "$node_to_bubble" ]]; then
             start_swap=true;
         fi;
         if "$start_swap" && [[ $i -lt $index_last ]]; then 
             index_to_swap=$(( $i + 1 ));
-            swap $node_to_bubble ${stack_leaves[$index_to_swap]};
+            swap $node_to_bubble ${leaves[$index_to_swap]};
         fi;
     done
 }
@@ -26,24 +31,22 @@ _bubble_node_in_stack_to_top(){
 # Use case: Zoom an item from stack into master
 # Use case: Zoom the top of the stack into master
 zoom(){
-    if "$(is_leaf $DESKTOP)"; then
-        # echo "zoom: nothing todo";
-        return;
-    fi;
+    "$(is_leaf $DESKTOP)" && return;
 
-    node_to_zoom="$(query_focused_node $DESKTOPNAME)"; 
-    if [[ -z $node_to_zoom ]]; then
-        # echo "zoom: no focused node to select";
-        return;
-    fi;
+    local node_to_zoom="$(query_focused_node $DESKTOPNAME)"; 
+    [[ -z $node_to_zoom ]] && return;
 
-    if "$(is_node_in_stack $node_to_zoom $MASTER)"; then
-        _bubble_node_in_stack_to_top $node_to_zoom;
-    fi;
+    local use_increment_stack=$(has_increment_stack);
+    if ! $(is_master_node $node_to_zoom); then
+        _bubble_node_in_stack_to_top $node_to_zoom $use_increment_stack;
+    fi
+
     # echo "zoom: swap master with top of the stack and focus master";
-    swap $STACK_NEWNODE $MASTER || swap $STACK $MASTER;
-    # echo "zoom: set new master id"
-    # TODO Improve!!
-    save_master_node "$(query_node $MASTER)";
-    bspc node $MASTER -f;
+    if $use_increment_stack; then
+        on_zoom_swap_top_member_with_master;
+    else
+        swap $STACK_NEWNODE $MASTER || swap $STACK $MASTER;
+        save_master_node "$(query_node $MASTER)";
+        bspc node $MASTER -f;
+    fi
 }

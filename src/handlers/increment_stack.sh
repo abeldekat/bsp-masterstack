@@ -269,3 +269,24 @@ remove_node_from_increment_stack(){
     balance $MASTER;
     # echo "remove: counter[$NR_INCREMENTS] --> finished";
 }
+
+# Returns the nodes in the increment stack in reversed order
+on_zoom_query_increment_stack(){
+    local result=($(query_leaves_reversed $MASTER_INCREMENT));
+    echo "${result[@]}";
+
+}
+# On zoom master is swapped with top of the stack
+# Top of the stack could origin from members or from dynamic stack
+# Refresh needed. Numbers of members stays the same
+on_zoom_swap_top_member_with_master(){
+    local top="$MASTER_INCREMENT/$_new_node";
+    [[ $NR_INCREMENTS -eq 1 ]] && top="$MASTER_INCREMENT";
+    swap $top $MASTER_NEWNODE;
+
+    unset MEMBERS;
+    MEMBERS=($(query_leaves $MASTER_INCREMENT));
+
+    save_master_node "$(query_node $MASTER_NEWNODE)";
+    bspc node $MASTER_NEWNODE -f;
+}
