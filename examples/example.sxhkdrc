@@ -18,8 +18,11 @@
 # quit
 #
 super + z
-	bsp-masterstack.sh stop; \ 
     . $XDG_CONFIG_HOME/sxhkd/normal.mode
+
+# super + z
+# 	bsp-masterstack.sh stop; \ 
+#     . $XDG_CONFIG_HOME/sxhkd/normal.mode
 
 super + shift + Return
 	$TERMINAL
@@ -32,6 +35,12 @@ super + s
 
 super + r
 	bsp-masterstack.sh rotate
+
+super + i
+	bsp-masterstack.sh increment
+
+super + d
+	bsp-masterstack.sh decrement
 
 super + e
 	bsp-masterstack.sh equalize

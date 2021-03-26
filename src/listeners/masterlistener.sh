@@ -13,14 +13,14 @@ source "$ROOT/lib/bspc.sh";
 source "$ROOT/handlers/config.sh";
 source "$ROOT/handlers/runtime_globals.sh";
 source "$ROOT/handlers/dump.sh";
-source "$ROOT/handlers/transform.sh";
-source "$ROOT/handlers/on_event.sh";
 source "$ROOT/handlers/master.sh";
-#
-source "$ROOT/handlers/equalize.sh";
+source "$ROOT/handlers/transform.sh";
 source "$ROOT/handlers/rotate.sh";
+source "$ROOT/handlers/equalize.sh";
+#
+source "$ROOT/handlers/increment_stack.sh";
 source "$ROOT/handlers/zoom.sh";
-source "$ROOT/handlers/incrementdecrement.sh";
+source "$ROOT/handlers/on_event.sh";
 
 # The command listener needs to be killed explicitly
 _on_kill_main_process(){
