@@ -2,7 +2,7 @@
 
 save_master_node(){
     MASTER_ID=$1;
-    # echo "New masterid [$MASTER_ID]";
+    # echo "Saved new masterid [$MASTER_ID]";
 }
 
 is_master_node(){
