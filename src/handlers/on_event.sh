@@ -1,69 +1,92 @@
 #!/usr/bin/env bash
 
-_activate_orientation(){
+# Master is leaf and stack is leaf:
+# Activate orientation
+# Save new master
+_activate(){
+    local node_id=$1;
+    save_master_node $node_id; 
+
     # echo "Test if orientation is default";
     [[ $ORIENTATION == $DIR_WEST ]] && return;
 
-    local nodeid=$1;
     # echo "Replace master with a receptacle";
-    receptacle $DESKTOP "$ORIENTATION" $PRESEL_RATIO;
+    create_receptacle $DESKTOP_ROOT "$ORIENTATION" $PRESEL_RATIO;
     # echo "Move new master to receptacle";
-    transfer $nodeid $MASTER;
+    transfer $node_id $MASTER;
+}
+
+# $1 node_id to transfer into the dynamic stack
+_add_node_to_dynamic_stack(){
+    local node_id=$1;
+
+    # echo "transfer node [$node_id] to top of the dynamic stack"
+    transfer $node_id $STACK;
+    balance $STACK;
+}
+
+# Master deleted, replace with a node from the dynamic stack
+_restore_and_save_master_from_dynamic_stack(){
+    # echo "restore master from dynamic stack with receptacle ";
+    create_receptacle $DESKTOP_ROOT $ORIENTATION $PRESEL_RATIO;
+
+    # echo "retrieve top of the stack";
+    local node_id="$(query_node $STACK_NEWNODE)";
+
+    # echo "dynamic stack: move node [$node_id] to master receptacle";
+    transfer $node_id $MASTER;
+    balance $STACK;
+    save_master_node "$node_id"; 
 }
 
 # node_add <monitor_id> <desktop_id> <ip_id> <node_id>
 on_node_add(){
-    local nodeid=$4;
+    local node_id=$4;
 
-    # echo "on_node_add, test for desktop with exactly one leaf";
+    # echo "on_node_add: test for desktop with exactly one leaf";
     "$(is_leaf $DESKTOP)" && return;
 
-    # echo "on_node_add, save new node as master";
-    save_master_node $nodeid; 
-
-    # echo "on_node_add, test for desktop with exactly two leaves"
+    # echo "on_node_add: test for desktop with exactly two leaves"
     if "$(is_leaf $MASTER)" && "$(is_leaf $STACK)"; then
-        _activate_orientation $nodeid;
+        _activate $node_id;
         return;
-    fi;
+    fi
 
     # echo "on_node_add, there are three or more leaves"
-    if "$(is_node_in_stack $nodeid $MASTER)"; then
-        # echo "on_node_add, move new node from stack to master"
-        transfer $nodeid $MASTER;
-    fi;
-    # echo "on_node_add, move old master to top of the stack"
-    transfer $MASTER_NEWNODE/brother $STACK;
-    balance $STACK;
+    if ! $(is_brother_of_master_node $node_id); then
+        # echo "on_node_add: move new node from stack to master"
+        transfer $node_id $MASTER_ID;
+    fi
+
+    $(has_increment_stack) && add_node_to_increment_stack $MASTER_ID || \
+        _add_node_to_dynamic_stack $MASTER_ID;
+
+    save_master_node $node_id; 
 }
 
 # node_add <monitor_id> <desktop_id> <node_id>
 on_node_remove(){
     local removed_id=$3;
+    local nr_nodes="$(query_number_of_leaves $DESKTOP_ROOT)";
 
-    # echo "[$$] on_node_remove, test for existance of master and stack";
-    if "$(has_no_master $DESKTOPNAME)"; then
-        save_master_node "";
-        return;
+    # echo "***on_node_remove start: removed[$removed_id] nodes[$nr_nodes] ";
+    [[ $nr_nodes -eq 0 ]] && return;
+
+    local is_master="$(is_master_node $removed_id)";
+    if $(has_increment_stack); then
+        remove_node_from_increment_stack $removed_id $is_master;
+    else
+        if [[ $nr_nodes -eq 1 ]]; then
+            save_master_node "$(query_node $DESKTOP_ROOT)";
+        elif "$is_master"; then
+            _restore_and_save_master_from_dynamic_stack;
+        else
+            balance $STACK;
+        fi
     fi
 
-    # echo "on_node_remove, test if master has been removed";
-    if "$(is_master_node $removed_id)"; then
-        # echo "on_node_remove, restore master with receptacle ";
-        receptacle $DESKTOP $ORIENTATION $PRESEL_RATIO;
-
-        # echo "on_node_remove, retrieve top of the stack";
-        local new_master_id="$(query_node $STACK_NEWNODE)";
-
-        # echo "on_node_remove, move node [$new_master_id] to receptacle ";
-        transfer $new_master_id $MASTER;
-
-        # echo "on_node_remove, save new master id [$new_master_id]";
-        save_master_node "$new_master_id"; 
-
-        focus_node $new_master_id;
-    fi
-    balance $STACK;
+    $is_master && focus_master_node;
+    # echo "*** on_node_remove finish: master node is [$MASTER_ID]";
 }
 
 # Delegates to node_add

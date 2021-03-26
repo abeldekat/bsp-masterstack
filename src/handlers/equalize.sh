@@ -10,6 +10,7 @@
 equalize(){
     bspc config split_ratio $RESET_RATIO;
     bspc node "$DESKTOP/" -E;
+    bspc node "$MASTER" -B;
     bspc node "$STACK" -B;
     bspc config split_ratio $SPLIT_RATIO;
 }

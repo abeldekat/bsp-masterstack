@@ -61,9 +61,21 @@ balance(){
 }
 
 # $1 path to query
+# Result: All leaves in path
+query_leaves(){
+    echo "$(bspc query -N $1 -n .descendant_of.leaf.window)";
+}
+
+# $1 path to query
 # Result: All leaves in path in reversed order
 query_leaves_reversed(){
     echo "$(bspc query -N $1 -n .descendant_of.leaf.window | tac)";
+}
+
+# $1 path to query
+# Result: Number of leaves in path
+query_number_of_leaves(){
+    echo "$(bspc query -N $1 -n .descendant_of.leaf.window | wc -l)";
 }
 
 # $1 desktopname
@@ -72,11 +84,21 @@ query_focused_node(){
     echo "$(bspc query -N -n focused -d $1)";
 }
 
-# $1 desktoppath
+# $1 nodeid to retrieve brother for
+query_brother(){
+    echo "$(bspc query -N $1 -n @brother)";
+}
+
+# $1 path
 # $2 orientation
 # $3 presel_ratio
-receptacle(){
-    bspc node "$1/" -p $2 -o $3 -i;
+create_receptacle(){
+    bspc node "$1" -p $2 -o $3 -i;
+}
+
+# $1 The path to find receptacles in
+query_receptacle(){
+    echo $(bspc query -N $1 -n .leaf.descendant_of.!window);
 }
 
 # $1 The name of the desktop
@@ -85,6 +107,12 @@ desktop_has_focus(){
     local focused="$(get_focused_desktop)";
     [[ "$focused" != "$1" ]] && result=false;
     echo $result;
+}
+
+# $1 The path to remove all receptacles from
+remove_all_receptacles(){
+    bspc query -N "$1" -n .leaf.descendant_of.!window | \
+        xargs -I {} bspc node {} -k;
 }
 
 # Empty desktop or root is a leaf

@@ -43,6 +43,7 @@ zoom(){
     # echo "zoom: swap master with top of the stack and focus master";
     swap $STACK_NEWNODE $MASTER || swap $STACK $MASTER;
     # echo "zoom: set new master id"
+    # TODO Improve!!
     save_master_node "$(query_node $MASTER)";
     bspc node $MASTER -f;
 }

@@ -18,6 +18,7 @@
 # quit
 #
 super + z
+	bsp-masterstack.sh stop; \ 
     . $XDG_CONFIG_HOME/sxhkd/normal.mode
 
 super + shift + Return
@@ -26,11 +27,8 @@ super + shift + Return
 super + Return
 	bsp-masterstack.sh zoom
 
-super + a
-	bsp-masterstack.sh start
-
 super + s
-	bsp-masterstack.sh stop
+	bsp-masterstack.sh start
 
 super + r
 	bsp-masterstack.sh rotate

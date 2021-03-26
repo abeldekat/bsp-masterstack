@@ -1,16 +1,25 @@
 #!/usr/bin/env bash
 
-_masterid="";
-
 save_master_node(){
-    _masterid=$1;
-    # echo "New masterid [$_masterid]";
+    MASTER_ID=$1;
+    # echo "Saved new masterid [$MASTER_ID]";
 }
-forget_master_node(){
-    echo "Todo forgetting master node";
-}
+
 is_master_node(){
     local result=false;
-    [[ $1 == $_masterid ]] && result=true; 
+    [[ $1 == $MASTER_ID ]] && result=true; 
+    echo $result;
+}
+
+focus_master_node(){
+    focus_node $MASTER_ID;
+}
+
+is_brother_of_master_node(){
+    local test_node=$1;
+    local result=false;
+
+    local brother_node="$(query_brother $MASTER_ID)";
+    [[ $test_node == $brother_node ]] && result=true;
     echo $result;
 }

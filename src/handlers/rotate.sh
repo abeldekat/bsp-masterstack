@@ -8,6 +8,8 @@ declare -A _rotations=(["$DIR_WEST"]="$DIR_NORTH" \
     ["$DIR_SOUTH"]="$DIR_WEST");
 
 rotate_to_new_orientation(){
+    "$(has_no_master $DESKTOPNAME)" && return;
+
     local new_orientation=${_rotations["$ORIENTATION"]};
     local old_master_position=$MASTER_POSITION;
 
@@ -20,8 +22,9 @@ rotate_to_new_orientation(){
     set_desktop_option $DESKTOPNAME 'orientation' "$ORIENTATION";
 
     if [[ $old_master_position == $MASTER_POSITION ]]; then
-        # echo "Correcting stack order [$STACK]";
-        rotate $STACK 180;
+        # echo "Correcting master[$MASTER] and stack [$STACK] order";
+        rotate "$MASTER" 180;
+        rotate "$STACK" 180;
     fi
+    focus_master_node;
 }
-

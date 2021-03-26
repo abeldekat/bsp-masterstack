@@ -20,6 +20,7 @@ source "$ROOT/handlers/master.sh";
 source "$ROOT/handlers/equalize.sh";
 source "$ROOT/handlers/rotate.sh";
 source "$ROOT/handlers/zoom.sh";
+source "$ROOT/handlers/incrementdecrement.sh";
 
 # The command listener needs to be killed explicitly
 _on_kill_main_process(){
@@ -72,6 +73,8 @@ _execute_command(){
       zoom) zoom ;;
       rotate) rotate_to_new_orientation ;;
       equalize) equalize ;;
+      increment) increment ;;
+      decrement) decrement ;;
       dump) dump ;;
       acknowledge) transform_if_needed; _acknowledge ;;
       *) ;;
