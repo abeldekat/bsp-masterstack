@@ -45,7 +45,7 @@ zoom(){
     if $use_increment_stack; then
         on_zoom_swap_top_member_with_master;
     else
-        swap $STACK_NEWNODE $MASTER || swap $STACK $MASTER;
+        swap $STACK_TOP $MASTER || swap $STACK $MASTER;
         save_master_node "$(query_node $MASTER)";
         bspc node $MASTER -f;
     fi

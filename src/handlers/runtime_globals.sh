@@ -3,6 +3,7 @@
 # There are four orientations
 # Opposite orientations share the same global variables 
 
+# Master id is global and kept up to date on every applicable event
 MASTER_ID="";
 
 _global_configs="$ROOT/globals";
@@ -39,11 +40,18 @@ set_runtime_globals(){
 
     DESKTOP="@$DESKTOPNAME:";
     DESKTOP_ROOT="$DESKTOP/";
+    # base master position
     MASTER="$DESKTOP/$MASTER_POSITION";
-    MASTER_INCREMENT="$MASTER/$INCREMENT_POSITION";
+    # base stack position
     STACK="$DESKTOP/$STACK_POSITION";
-    # For example: @I:/1/1/
-    MASTER_NEWNODE="$MASTER/$_new_node";
+    # Top leaf in stack with nr_in_stack > 1
     # For example: @I:/2/1/
-    STACK_NEWNODE="$STACK/$_new_node";
+    STACK_TOP="$STACK/$_new_node";
+
+    # Increment/decrement
+    # For example: @I:/1/1/
+    MASTER_TOP="$MASTER/$_new_node";
+    # For example: @I:/1/2/
+    MASTER_INCREMENT="$MASTER/$INCREMENT_POSITION";
+    MASTER_INCREMENT_TOP="$MASTER_INCREMENT/$_new_node";
 }

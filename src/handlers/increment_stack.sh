@@ -151,7 +151,7 @@ _transfer_to_increment_stack(){
     local receptacle_id="$(query_receptacle $MASTER_INCREMENT)";
 
     # echo "increment: Move top of the stack to receptacle [$receptacle_id]";
-    local path_to_source=$STACK_NEWNODE;
+    local path_to_source=$STACK_TOP;
     [[ $nr_in_stack -eq 1 ]] && path_to_source=$STACK;
     local source_id="$(query_node $path_to_source)";
 
@@ -170,8 +170,8 @@ _remove_node_handle_member(){
     if $is_removed_from_master; then
         # previous head of increment stack is now on master
         local current_size="${#MEMBERS[@]}";
-        local master_path=$MASTER;
-        [[ $current_size -gt 1 ]] && master_path=$MASTER_NEWNODE;
+        local master_path=$MASTER_TOP;
+        [[ $current_size -eq 1 ]] && master_path=$MASTER;
 
         local member_to_remove="$(query_node $master_path)";
         save_master_node "$member_to_remove"; 
@@ -280,13 +280,18 @@ on_zoom_query_increment_stack(){
 # Top of the stack could origin from members or from dynamic stack
 # Refresh needed. Numbers of members stays the same
 on_zoom_swap_top_member_with_master(){
-    local top="$MASTER_INCREMENT/$_new_node";
+    local top="$MASTER_INCREMENT_TOP";
     [[ $NR_INCREMENTS -eq 1 ]] && top="$MASTER_INCREMENT";
-    swap $top $MASTER_NEWNODE;
+    swap $top $MASTER_TOP;
 
     unset MEMBERS;
     MEMBERS=($(query_leaves $MASTER_INCREMENT));
 
-    save_master_node "$(query_node $MASTER_NEWNODE)";
-    bspc node $MASTER_NEWNODE -f;
+    save_master_node "$(query_node $MASTER_TOP)";
+    bspc node $MASTER_TOP -f;
+}
+
+# Reveals members kept in memory
+reveal_members_in_increment_stack(){
+    echo "${MEMBERS[@]}";
 }

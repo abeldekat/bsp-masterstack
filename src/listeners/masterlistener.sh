@@ -107,7 +107,7 @@ _listen_for_events(){
 
 # Acknowledges to the caller that the listener is ready
 _acknowledge(){
-        echo "$READY_REPLY" > "$THIS_REPLY_FIFO";
+    echo "$READY_REPLY" > "$THIS_REPLY_FIFO";
 }
 
 # Global variables

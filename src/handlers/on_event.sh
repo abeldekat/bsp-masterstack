@@ -31,7 +31,7 @@ _restore_and_save_master_from_dynamic_stack(){
     create_receptacle $DESKTOP_ROOT $ORIENTATION $PRESEL_RATIO;
 
     # echo "retrieve top of the stack";
-    local node_id="$(query_node $STACK_NEWNODE)";
+    local node_id="$(query_node $STACK_TOP)";
 
     # echo "dynamic stack: move node [$node_id] to master receptacle";
     transfer $node_id $MASTER;

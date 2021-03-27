@@ -2,6 +2,7 @@ STATE_DIR="/tmp/bsp-masterstack.state";
 
 DESKTOP_STATE="$STATE_DIR/desktops";
 DESKTOP_FIFO="$STATE_DIR/fifo";
+DESKTOP_DUMP="$STATE_DIR/dump";
 GUARD_FILE="$STATE_DIR/GUARD";
 
 # West resembles the default way bspwm operates on alternate with first_child
@@ -52,6 +53,9 @@ get_pid(){
     echo "$(get_desktop_options "$1" | valueof pid)"
 }
 
+# Returns the full path to the dump file of desktop $1
+get_dump_file() { echo "$DESKTOP_DUMP/$1"; }
+
 # Returns the full path to the fifo used by the command listener 
 # in desktop $1
 get_command_fifo() { echo "$DESKTOP_FIFO/$1"; }
@@ -89,3 +93,4 @@ get_guard_id(){
 # Make sure all directories exist
 mkdir -p "$DESKTOP_STATE";
 mkdir -p "$DESKTOP_FIFO";
+mkdir -p "$DESKTOP_DUMP";
