@@ -1,23 +1,3 @@
-# Note: The code tests against master as master normally would contain
-# the least amount of nodes.
-#
-# $1 the nodeid to test
-# $2 the absolute path to master
-# Returns: true if nodeid is part of the stack node.
-is_node_in_stack(){
-    local result=false;
-    [[ -z "$(bspc query -N $1 -n $2.ancestor_of)" ]] && result=true; 
-    echo $result;
-}
-
-# See is_node_in_stack
-# Returns: true if nodeid is part of the master node.
-is_node_in_master(){
-    local result=false;
-    [[ -n "$(bspc query -N $1 -n $2.ancestor_of)" ]] && result=true; 
-    echo $result;
-}
-
 # $1 Path to node
 # Returns nodeid if path exists
 query_node(){
@@ -101,14 +81,6 @@ query_receptacle(){
     echo $(bspc query -N $1 -n .leaf.descendant_of.!window);
 }
 
-# $1 The name of the desktop
-desktop_has_focus(){
-    local result=true;
-    local focused="$(get_focused_desktop)";
-    [[ "$focused" != "$1" ]] && result=false;
-    echo $result;
-}
-
 # $1 The path to remove all receptacles from
 remove_all_receptacles(){
     bspc query -N "$1" -n .leaf.descendant_of.!window | \
@@ -126,9 +98,10 @@ has_no_master(){
 }
 
 # $1 The name of the desktop
-has_master(){
+desktop_has_focus(){
     local result=true;
-    if "$(has_no_master $1)"; then result=false; fi
+    local focused="$(get_focused_desktop)";
+    [[ "$focused" != "$1" ]] && result=false;
     echo $result;
 }
 

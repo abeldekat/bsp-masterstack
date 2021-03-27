@@ -14,6 +14,14 @@ _merge_current_stack_and_master_reversed(){
     echo "${leaves_result[@]}"
 }
 
+# $1 The name of the desktop
+_desktop_has_focus(){
+    local result=true;
+    local focused="$(get_focused_desktop)";
+    [[ "$focused" != "$1" ]] && result=false;
+    echo $result;
+}
+
 transform_if_needed(){
     # echo "transform: removing all receptacles on desktop[$DESKTOPNAME]"; 
     remove_all_receptacles $DESKTOP_ROOT;
@@ -39,5 +47,5 @@ transform_if_needed(){
 
     # echo "transform, save node [$new_master_id] as master";
     save_master_node $new_master_id;
-    $(desktop_has_focus $DESKTOPNAME) && focus_master_node;
+    $(_desktop_has_focus $DESKTOPNAME) && focus_master_node;
 }
